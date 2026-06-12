@@ -70,22 +70,36 @@ Send that to the group chat. Done.
 
 ## 🔄 How live scores update
 
-Match data lives in [`/data`](data) as plain JSON. A GitHub Action,
-[`update-data.yml`](.github/workflows/update-data.yml), runs **every 15 minutes**
-during the tournament: it pulls the latest scores from the upstream
-[worldcup2026 API repo](https://github.com/rezarahiminia/worldcup2026),
-rebuilds the data files, and commits them. Pages redeploys automatically, so the
-site stays current with zero effort.
+The tournament **structure** (teams, groups, all 104 fixtures, venues) was
+verified against the real 2026 World Cup and is frozen in [`/data`](data). Live
+**scores** are layered on top of it.
+
+A GitHub Action, [`update-data.yml`](.github/workflows/update-data.yml), runs
+**every 15 minutes** and pulls live results from **ESPN's free public soccer
+API** (`fifa.world`) — no key, no signup. It matches each result onto our
+fixtures by team name + date, writes the scores into `data/matches.json`, and
+commits. Pages redeploys automatically, so the site stays current with zero
+effort. The open page also re-reads `/data` every 90s.
 
 - **Trigger a refresh by hand:** repo **Actions → Refresh match data → Run
   workflow**.
 - **Change the cadence:** edit the `cron` line in the workflow.
-- The site also tries to pull fresh scores straight from upstream in the
-  browser, so an open tab refreshes itself every 90s too.
+- **Failures are non-destructive:** if ESPN is unreachable or a match can't be
+  matched, existing scores are left untouched (so a hand-entered score survives).
 
-> The Action needs write access to push commits — that's on by default via the
-> built-in `GITHUB_TOKEN`. If you've turned on branch protection for `main`,
-> allow the Action to push (or point Pages at a different branch).
+> The Action needs write access to push commits — on by default via the built-in
+> `GITHUB_TOKEN`. If you've turned on branch protection for `main`, allow the
+> Action to push (or point Pages at a different branch).
+
+### Prefer an official / keyed source instead of ESPN?
+
+ESPN's endpoint is unofficial (but stable and widely used). If you'd rather use
+[football-data.org](https://www.football-data.org) or
+[API-Football](https://www.api-football.com), the results fetch is isolated in
+`espn_results()` / `parse_event()` inside
+[`scripts/update_data.py`](scripts/update_data.py) — swap those two functions and
+add the API key as a repo secret. Everything downstream (name-matching, overlay,
+scoring) stays the same.
 
 ---
 
@@ -102,7 +116,8 @@ python3 -m http.server 8000
 To pull the latest scores into `/data` yourself:
 
 ```bash
-python3 scripts/update_data.py
+python3 scripts/update_data.py            # overlay live ESPN scores
+python3 scripts/update_data.py --rebuild  # also regenerate the fixture skeleton
 ```
 
 (Standard-library Python only — nothing to install.)
@@ -120,8 +135,8 @@ js/
   engine.js             # standings, owner scoring, clashes, stats
   ui.js                 # all views + rendering
   app.js                # router, auto-refresh, countdown
-data/                   # bundled match data (auto-refreshed by the Action)
-scripts/update_data.py  # pulls + normalises upstream data
+data/                   # frozen fixtures + live scores (auto-refreshed by the Action)
+scripts/update_data.py  # overlays live ESPN scores onto the fixtures
 .github/workflows/      # the auto-refresh job
 ```
 
@@ -130,9 +145,9 @@ scripts/update_data.py  # pulls + normalises upstream data
 ## 👥 The draw
 
 16 managers × 3 teams = all 48 World Cup 2026 nations. The mapping lives in
-`data/owners.json` (and is rebuilt by `scripts/update_data.py` from the original
-draw). To change a pick, edit the `DRAW` list in that script and re-run it.
+`data/owners.json` (rebuilt from the `DRAW` list in `scripts/update_data.py` when
+you run `--rebuild`). To change a pick, edit that list and re-run it.
 
-Data courtesy of the open-source
-[worldcup2026 API](https://github.com/rezarahiminia/worldcup2026). Built for the
-lads 🍺
+Fixtures/teams/venues from the open-source
+[worldcup2026 dataset](https://github.com/rezarahiminia/worldcup2026); live
+scores from [ESPN](https://www.espn.com/soccer/). Built for the lads 🍺

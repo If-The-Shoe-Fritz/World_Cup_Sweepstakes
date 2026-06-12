@@ -15,17 +15,12 @@ const CONFIG = {
    *  data/matches.json to enter a score yourself.
    * --------------------------------------------------------------------- */
   localData: "data/",
-  // Optional live overlay fetched straight from the upstream repo in the
-  // browser. Set enabled:false if you only ever want the committed /data.
-  remote: {
-    enabled: true,
-    base: "https://raw.githubusercontent.com/rezarahiminia/worldcup2026/main/",
-    files: {
-      matches: "football.matches.json",
-      teams: "football.teams.json",
-    },
-  },
-  refreshSeconds: 90, // how often the open page re-checks for new scores
+  // Live scores are pulled from ESPN by a GitHub Action and committed to /data,
+  // so the browser just re-reads our own (always-fresh) local files. The old
+  // in-browser overlay is off — leave it disabled unless you wire a CORS-safe
+  // source of your own.
+  remote: { enabled: false },
+  refreshSeconds: 90, // how often the open page re-reads /data for new scores
 
   /* -- SCORING SYSTEM ------------------------------------------------------
    *  Every owner banks points from their three teams. Change the numbers and
