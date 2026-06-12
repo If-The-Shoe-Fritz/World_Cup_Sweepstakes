@@ -143,14 +143,15 @@ def parse_event(ev, name_lut):
         sides = {}
         for c in comp.get("competitors", []):
             team = c.get("team", {})
+            nm = team.get("displayName") or team.get("name") or "?"
             # try every name field ESPN offers before giving up
             candidates = [
                 team.get("displayName"), team.get("name"), team.get("shortDisplayName"),
                 team.get("location"), team.get("nickname"), team.get("abbreviation"),
             ]
-            tid = next((name_lut[norm(c)] for c in candidates if c and norm(c) in name_lut), None)
+            tid = next((name_lut[norm(x)] for x in candidates if x and norm(x) in name_lut), None)
             if tid is None:
-                UNMATCHED.add(team.get("displayName") or team.get("name") or "?")
+                UNMATCHED.add(nm)
                 return None  # a team we couldn't map — logged for follow-up
             score = c.get("score")
             try:
