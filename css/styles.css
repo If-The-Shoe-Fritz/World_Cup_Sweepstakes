@@ -210,9 +210,36 @@ td.c-owner { display: flex; align-items: center; gap: 7px; }
 .c-total b { color: var(--gold); font-size: 0.98rem; }
 .c-prog { color: var(--blue); }
 
-.nextup { font-size: 0.78rem; color: var(--muted); font-weight: 700; background: var(--surface); border: 1px solid var(--line); padding: 7px 12px; border-radius: 999px; }
-.nextup .cd { color: var(--gold); font-variant-numeric: tabular-nums; }
-.livenow { font-size: 0.8rem; font-weight: 800; color: var(--red); }
+/* next-match / on-now banner */
+.nextcard {
+  background: linear-gradient(160deg, var(--surface3), var(--surface));
+  border: 1px solid var(--line2); border-radius: var(--radius);
+  padding: 14px 16px; margin-bottom: 14px; box-shadow: var(--shadow);
+}
+.nextcard.is-live { border-color: rgba(251,113,133,.45); }
+.nx-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.nx-label { font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gold); }
+.nx-cd { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+.nx-cd .cd { color: var(--gold); font-variant-numeric: tabular-nums; }
+.nx-body { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; }
+.nx-side { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.nx-side.right { flex-direction: row-reverse; text-align: right; }
+.nxflag { width: 40px; height: 28px; border-radius: 5px; object-fit: cover; box-shadow: 0 0 0 1px rgba(0,0,0,.3); flex: none; }
+.nx-meta { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.nx-side.right .nx-meta { align-items: flex-end; }
+.nx-team { font-weight: 800; font-size: 1.02rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nx-vs { color: var(--muted2); font-weight: 800; font-size: 0.85rem; }
+.nx-score { font-size: 1.5rem; font-weight: 900; color: var(--red); font-variant-numeric: tabular-nums; }
+.nx-foot { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 0.74rem; color: var(--muted); text-align: center; }
+
+/* players to watch */
+.watch-card h3 { color: var(--gold); }
+.watch-team { display: flex; align-items: center; gap: 9px; padding: 8px 0; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.watch-team:first-of-type { border-top: none; }
+.watchflag { width: 24px; height: 17px; border-radius: 3px; object-fit: cover; flex: none; }
+.watch-tname { font-weight: 800; font-size: 0.85rem; min-width: 84px; }
+.watch-players { display: flex; flex-wrap: wrap; gap: 6px; }
+.watch-p { font-size: 0.78rem; font-weight: 600; color: var(--text); background: var(--surface3); border-radius: 999px; padding: 3px 10px; }
 
 /* -- owners grid --------------------------------------------------------- */
 .owner-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }

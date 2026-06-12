@@ -22,7 +22,7 @@ const Data = {
       if (!r.ok) throw new Error("Failed to load " + f);
       return r.json();
     };
-    const [teams, matches, stadiums, grouptables, owners, meta] =
+    const [teams, matches, stadiums, grouptables, owners, meta, players] =
       await Promise.all([
         j("teams.json"),
         j("matches.json"),
@@ -30,6 +30,7 @@ const Data = {
         j("grouptables.json"),
         j("owners.json"),
         j("meta.json").catch(() => ({})),
+        j("players.json").catch(() => ({})),
       ]);
 
     this.teams = teams;
@@ -38,6 +39,7 @@ const Data = {
     this.grouptables = grouptables;
     this.owners = owners;
     this.meta = meta || {};
+    this.playersRaw = players || {};
     this._index();
   },
 
@@ -63,6 +65,12 @@ const Data = {
     this.owners.forEach((o) => {
       this.byOwner[o.id] = o;
       o.team_ids.forEach((tid) => (this.ownerOfTeam[tid] = o));
+    });
+    // curated "players to watch", keyed by team id (players.json is by name)
+    this.playersByTeam = {};
+    this.teams.forEach((t) => {
+      const list = this.playersRaw[t.name];
+      if (Array.isArray(list)) this.playersByTeam[t.id] = list;
     });
   },
 
@@ -128,6 +136,9 @@ const Data = {
   },
   ownerForTeam(id) {
     return this.ownerOfTeam[id] || null;
+  },
+  playersFor(id) {
+    return this.playersByTeam[id] || [];
   },
 };
 
