@@ -262,6 +262,22 @@ td.c-owner { display: flex; align-items: center; gap: 7px; }
 .bd-total { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); text-align: right; color: var(--muted); font-weight: 700; }
 .bd-total b { color: var(--gold); font-size: 1.3rem; margin-left: 8px; }
 
+/* plain-English points breakdown */
+.bd-plain { font-size: 1.02rem; line-height: 1.7; margin: 0 0 14px; color: var(--text); }
+.bd-plain b { color: var(--gold); }
+.bd-plain .bd-sub { color: var(--muted); font-weight: 700; font-size: 0.85em; }
+.bd-lines { display: grid; gap: 2px; }
+.bd-line { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 9px; }
+.bd-line:nth-child(odd) { background: var(--surface); }
+.bd-ic { font-size: 1rem; text-align: center; }
+.bd-desc { font-weight: 700; }
+.bd-desc small { color: var(--muted); font-weight: 600; margin-left: 4px; }
+.bd-eq { font-weight: 900; font-variant-numeric: tabular-nums; color: var(--gold); font-size: 1.05rem; }
+.bd-key { font-size: 0.74rem; color: var(--muted2); margin: 12px 0 0; line-height: 1.5; }
+
+/* per-team math on team cards */
+.tc-earned { margin-top: 10px; font-size: 0.82rem; font-weight: 700; color: var(--text); background: var(--surface); border: 1px dashed var(--line2); border-radius: 8px; padding: 7px 10px; }
+
 .team-cards { display: grid; gap: 12px; grid-template-columns: 1fr; }
 .team-card { margin: 0; }
 .tc-head { display: flex; align-items: center; gap: 11px; }
