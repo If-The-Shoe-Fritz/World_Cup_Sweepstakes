@@ -136,6 +136,7 @@ js/
   ui.js                 # all views + rendering
   app.js                # router, auto-refresh, countdown
 data/                   # frozen fixtures + live scores (auto-refreshed by the Action)
+data/players.json       # curated "players to watch" per team — edit freely
 scripts/update_data.py  # overlays live ESPN scores onto the fixtures
 .github/workflows/      # the auto-refresh job
 ```

@@ -200,21 +200,57 @@ const UI = {
     </div>`;
 
     return `<section class="view">
-      <div class="view-head"><h1>Leaderboard</h1>${this.liveStrip()}</div>
+      <div class="view-head"><h1>Leaderboard</h1></div>
+      ${this.nextMatchBanner()}
       ${podiumHtml}
       ${scoringNote}
       ${tableHtml}
     </section>`;
   },
 
-  liveStrip() {
+  // prominent "what's on next" banner — shows both teams AND their managers
+  nextMatchBanner() {
     const live = Engine.liveMatches();
-    if (!live.length) {
-      const next = Engine.upcoming(1)[0];
-      if (!next) return "";
-      return `<div class="nextup" id="nextup" data-date="${next.date}">Next kick-off in <span class="cd">—</span></div>`;
-    }
-    return `<div class="livenow">${live.length} match${live.length > 1 ? "es" : ""} live now</div>`;
+    const m = live[0] || Engine.upcoming(1)[0];
+    if (!m) return "";
+    const isLive = live.length > 0;
+    const home = Engine.hasTeams(m) ? Data.team(m.home_id) : null;
+    const away = Engine.hasTeams(m) ? Data.team(m.away_id) : null;
+    const ho = home ? Data.ownerForTeam(home.id) : null;
+    const ao = away ? Data.ownerForTeam(away.id) : null;
+    const stad = Data.stadium(m.stadium_id);
+    const d = Engine.matchDate(m);
+    const when = d
+      ? d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) +
+        " · " + d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
+      : "";
+    const tag = m.type === "group"
+      ? `Group ${this.esc(m.group)} · Matchday ${this.esc(m.matchday)}`
+      : this.stageLabel(m.type);
+    const foot = [tag, stad ? `${this.esc(stad.fifa_name || stad.name)}, ${this.esc(stad.city)}` : "", when]
+      .filter(Boolean)
+      .join(" · ");
+    const right = isLive
+      ? `<span class="tag tag-live"><span class="dot"></span>LIVE</span>`
+      : `<span class="nx-cd">kicks off in <span class="cd">—</span></span>`;
+    const mid = isLive
+      ? `<span class="nx-score">${m.home_score ?? 0}–${m.away_score ?? 0}</span>`
+      : `<span class="nx-vs">vs</span>`;
+    return `<div class="nextcard ${isLive ? "is-live" : ""}" ${isLive ? "" : `id="nextup" data-date="${m.date}"`}>
+      <div class="nx-top"><span class="nx-label">${isLive ? "⚽ On now" : "⚽ Next kick-off"}</span>${right}</div>
+      <div class="nx-body">
+        <div class="nx-side">
+          ${flagImg(home, "nxflag")}
+          <div class="nx-meta"><span class="nx-team">${this.esc(home ? home.name : "TBD")}</span>${this.ownerChip(ho)}</div>
+        </div>
+        ${mid}
+        <div class="nx-side right">
+          ${flagImg(away, "nxflag")}
+          <div class="nx-meta"><span class="nx-team">${this.esc(away ? away.name : "TBD")}</span>${this.ownerChip(ao)}</div>
+        </div>
+      </div>
+      <div class="nx-foot">${foot}</div>
+    </div>`;
   },
 
   /* ======================================================================
@@ -335,6 +371,23 @@ const UI = {
       })
       .join("");
 
+    // curated "players to watch" across the manager's three teams
+    const watchBlocks = r.contributions
+      .map((cc) => {
+        const list = Data.playersFor(cc.team.id);
+        if (!list.length) return "";
+        return `<div class="watch-team">
+          ${flagImg(cc.team, "watchflag")}
+          <span class="watch-tname">${this.esc(cc.team.name)}</span>
+          <span class="watch-players">${list.map((p) => `<span class="watch-p">${this.esc(p)}</span>`).join("")}</span>
+        </div>`;
+      })
+      .filter(Boolean)
+      .join("");
+    const watchCard = watchBlocks
+      ? `<div class="card watch-card"><h3>⭐ Players to watch</h3>${watchBlocks}</div>`
+      : "";
+
     return `<section class="view owner-view" style="--c:${c}">
       <a class="back" href="#/owners">← all managers</a>
       <div class="owner-hero">
@@ -356,6 +409,8 @@ const UI = {
       </div>
 
       ${topPerformers}
+
+      ${watchCard}
 
       <div class="team-cards">${teamCards}</div>
     </section>`;
