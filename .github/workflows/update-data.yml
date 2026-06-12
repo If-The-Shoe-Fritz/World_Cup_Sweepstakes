@@ -1,7 +1,8 @@
 name: Refresh match data
 
-# Pulls the latest scores from the upstream World Cup 2026 API repo and commits
-# them to /data, so the site (GitHub Pages) updates itself during the tournament.
+# Pulls live World Cup 2026 scores from ESPN's free public API, overlays them
+# onto our fixtures in /data, and commits any changes — so the site (GitHub
+# Pages) updates itself during the tournament. No API key required.
 
 on:
   schedule:
@@ -25,7 +26,7 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Pull latest scores
+      - name: Pull live scores from ESPN
         run: python scripts/update_data.py
 
       - name: Commit if anything changed

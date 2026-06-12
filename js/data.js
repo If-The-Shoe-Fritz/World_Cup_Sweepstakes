@@ -16,7 +16,7 @@ const Data = {
   ownerOfTeam: {}, // team id -> owner
   byOwner: {}, // owner id -> owner
 
-  async load() {
+  async _loadLocal() {
     const j = async (f) => {
       const r = await fetch(CONFIG.localData + f + "?t=" + Date.now());
       if (!r.ok) throw new Error("Failed to load " + f);
@@ -39,10 +39,18 @@ const Data = {
     this.owners = owners;
     this.meta = meta || {};
     this._index();
+  },
 
-    // best-effort live overlay (never breaks the page if it fails)
-    await this._overlayRemote();
+  async load() {
+    await this._loadLocal();
+    // best-effort live overlay (only if a CORS-safe remote is configured)
+    if (CONFIG.remote && CONFIG.remote.enabled) await this._overlayRemote();
     return this;
+  },
+
+  // re-read the committed /data files (the Action keeps them fresh)
+  async reloadLocal() {
+    await this._loadLocal();
   },
 
   _index() {

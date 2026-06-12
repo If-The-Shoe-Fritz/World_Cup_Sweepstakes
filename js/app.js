@@ -102,7 +102,11 @@ const App = {
   async refresh(manual) {
     const btn = document.getElementById("refreshBtn");
     if (btn) btn.classList.add("spin");
-    await Data._overlayRemote();
+    try {
+      await Data.reloadLocal();
+    } catch (e) {
+      /* keep showing the last good data on a hiccup */
+    }
     this.route();
     this.setFreshness(manual ? "updated just now" : "");
     if (btn) setTimeout(() => btn.classList.remove("spin"), 600);
