@@ -1,0 +1,43 @@
+name: Refresh match data
+
+# Pulls the latest scores from the upstream World Cup 2026 API repo and commits
+# them to /data, so the site (GitHub Pages) updates itself during the tournament.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *" # every 15 minutes (GitHub may delay under load)
+  workflow_dispatch: {} # lets you trigger a refresh by hand from the Actions tab
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Pull latest scores
+        run: python scripts/update_data.py
+
+      - name: Commit if anything changed
+        run: |
+          git config user.name "wc26-bot"
+          git config user.email "actions@github.com"
+          # ignore the timestamp-only meta change when deciding whether to commit
+          if [ -n "$(git status --porcelain data/teams.json data/matches.json data/grouptables.json data/owners.json data/stadiums.json)" ]; then
+            git add data/
+            git commit -m "Auto-refresh match data [skip ci]"
+            git push
+            echo "Pushed updated data."
+          else
+            echo "No score changes."
+          fi

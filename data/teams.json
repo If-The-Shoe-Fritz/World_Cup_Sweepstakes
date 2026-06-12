@@ -1,0 +1,434 @@
+[
+ {
+  "id": "1",
+  "name": "Mexico",
+  "name_fa": "مکزیک",
+  "code": "MEX",
+  "iso2": "mx",
+  "flag": "https://flagcdn.com/w80/mx.png",
+  "group": "A"
+ },
+ {
+  "id": "2",
+  "name": "South Africa",
+  "name_fa": "آفریقای جنوبی",
+  "code": "RSA",
+  "iso2": "za",
+  "flag": "https://flagcdn.com/w80/za.png",
+  "group": "A"
+ },
+ {
+  "id": "3",
+  "name": "South Korea",
+  "name_fa": "کره جنوبی",
+  "code": "KOR",
+  "iso2": "kr",
+  "flag": "https://flagcdn.com/w80/kr.png",
+  "group": "A"
+ },
+ {
+  "id": "4",
+  "name": "Czech Republic",
+  "name_fa": "جمهوری چک",
+  "code": "CZE",
+  "iso2": "cz",
+  "flag": "https://flagcdn.com/w80/cz.png",
+  "group": "A"
+ },
+ {
+  "id": "5",
+  "name": "Canada",
+  "name_fa": "کانادا",
+  "code": "CAN",
+  "iso2": "ca",
+  "flag": "https://flagcdn.com/w80/ca.png",
+  "group": "B"
+ },
+ {
+  "id": "6",
+  "name": "Bosnia and Herzegovina",
+  "name_fa": "بوسنی و هرزگوین",
+  "code": "BIH",
+  "iso2": "ba",
+  "flag": "https://flagcdn.com/w80/ba.png",
+  "group": "B"
+ },
+ {
+  "id": "7",
+  "name": "Qatar",
+  "name_fa": "قطر",
+  "code": "QAT",
+  "iso2": "qa",
+  "flag": "https://flagcdn.com/w80/qa.png",
+  "group": "B"
+ },
+ {
+  "id": "8",
+  "name": "Switzerland",
+  "name_fa": "سوئیس",
+  "code": "SUI",
+  "iso2": "ch",
+  "flag": "https://flagcdn.com/w80/ch.png",
+  "group": "B"
+ },
+ {
+  "id": "9",
+  "name": "Brazil",
+  "name_fa": "برزیل",
+  "code": "BRA",
+  "iso2": "br",
+  "flag": "https://flagcdn.com/w80/br.png",
+  "group": "C"
+ },
+ {
+  "id": "10",
+  "name": "Morocco",
+  "name_fa": "مراکش",
+  "code": "MAR",
+  "iso2": "ma",
+  "flag": "https://flagcdn.com/w80/ma.png",
+  "group": "C"
+ },
+ {
+  "id": "11",
+  "name": "Haiti",
+  "name_fa": "هائیتی",
+  "code": "HAI",
+  "iso2": "ht",
+  "flag": "https://flagcdn.com/w80/ht.png",
+  "group": "C"
+ },
+ {
+  "id": "12",
+  "name": "Scotland",
+  "name_fa": "اسکاتلند",
+  "code": "SCO",
+  "iso2": "sco",
+  "flag": "https://flagcdn.com/w80/gb-sct.png",
+  "group": "C"
+ },
+ {
+  "id": "13",
+  "name": "United States",
+  "name_fa": "آمریکا",
+  "code": "USA",
+  "iso2": "us",
+  "flag": "https://flagcdn.com/w80/us.png",
+  "group": "D"
+ },
+ {
+  "id": "14",
+  "name": "Paraguay",
+  "name_fa": "پاراگوئه",
+  "code": "PAR",
+  "iso2": "py",
+  "flag": "https://flagcdn.com/w80/py.png",
+  "group": "D"
+ },
+ {
+  "id": "15",
+  "name": "Australia",
+  "name_fa": "استرالیا",
+  "code": "AUS",
+  "iso2": "au",
+  "flag": "https://flagcdn.com/w80/au.png",
+  "group": "D"
+ },
+ {
+  "id": "16",
+  "name": "Turkey",
+  "name_fa": "ترکیه",
+  "code": "TUR",
+  "iso2": "tr",
+  "flag": "https://flagcdn.com/w80/tr.png",
+  "group": "D"
+ },
+ {
+  "id": "17",
+  "name": "Germany",
+  "name_fa": "آلمان",
+  "code": "GER",
+  "iso2": "de",
+  "flag": "https://flagcdn.com/w80/de.png",
+  "group": "E"
+ },
+ {
+  "id": "18",
+  "name": "Curaçao",
+  "name_fa": "کوراسائو",
+  "code": "CUW",
+  "iso2": "cw",
+  "flag": "https://flagcdn.com/w80/cw.png",
+  "group": "E"
+ },
+ {
+  "id": "19",
+  "name": "Ivory Coast",
+  "name_fa": "ساحل عاج",
+  "code": "CIV",
+  "iso2": "ci",
+  "flag": "https://flagcdn.com/w80/ci.png",
+  "group": "E"
+ },
+ {
+  "id": "20",
+  "name": "Ecuador",
+  "name_fa": "اکوادور",
+  "code": "ECU",
+  "iso2": "ec",
+  "flag": "https://flagcdn.com/w80/ec.png",
+  "group": "E"
+ },
+ {
+  "id": "21",
+  "name": "Netherlands",
+  "name_fa": "هلند",
+  "code": "NED",
+  "iso2": "nl",
+  "flag": "https://flagcdn.com/w80/nl.png",
+  "group": "F"
+ },
+ {
+  "id": "22",
+  "name": "Japan",
+  "name_fa": "ژاپن",
+  "code": "JPN",
+  "iso2": "jp",
+  "flag": "https://flagcdn.com/w80/jp.png",
+  "group": "F"
+ },
+ {
+  "id": "23",
+  "name": "Sweden",
+  "name_fa": "سوئد",
+  "code": "SWE",
+  "iso2": "se",
+  "flag": "https://flagcdn.com/w80/se.png",
+  "group": "F"
+ },
+ {
+  "id": "24",
+  "name": "Tunisia",
+  "name_fa": "تونس",
+  "code": "TUN",
+  "iso2": "tn",
+  "flag": "https://flagcdn.com/w80/tn.png",
+  "group": "F"
+ },
+ {
+  "id": "25",
+  "name": "Belgium",
+  "name_fa": "بلژیک",
+  "code": "BEL",
+  "iso2": "be",
+  "flag": "https://flagcdn.com/w80/be.png",
+  "group": "G"
+ },
+ {
+  "id": "26",
+  "name": "Egypt",
+  "name_fa": "مصر",
+  "code": "EGY",
+  "iso2": "eg",
+  "flag": "https://flagcdn.com/w80/eg.png",
+  "group": "G"
+ },
+ {
+  "id": "27",
+  "name": "Iran",
+  "name_fa": "ایران",
+  "code": "IRN",
+  "iso2": "ir",
+  "flag": "https://flagcdn.com/w80/ir.png",
+  "group": "G"
+ },
+ {
+  "id": "28",
+  "name": "New Zealand",
+  "name_fa": "نیوزیلند",
+  "code": "NZL",
+  "iso2": "nz",
+  "flag": "https://flagcdn.com/w80/nz.png",
+  "group": "G"
+ },
+ {
+  "id": "29",
+  "name": "Spain",
+  "name_fa": "اسپانیا",
+  "code": "ESP",
+  "iso2": "es",
+  "flag": "https://flagcdn.com/w80/es.png",
+  "group": "H"
+ },
+ {
+  "id": "30",
+  "name": "Cape Verde",
+  "name_fa": "کیپ ورد",
+  "code": "CPV",
+  "iso2": "cv",
+  "flag": "https://flagcdn.com/w80/cv.png",
+  "group": "H"
+ },
+ {
+  "id": "31",
+  "name": "Saudi Arabia",
+  "name_fa": "عربستان",
+  "code": "KSA",
+  "iso2": "sa",
+  "flag": "https://flagcdn.com/w80/sa.png",
+  "group": "H"
+ },
+ {
+  "id": "32",
+  "name": "Uruguay",
+  "name_fa": "اروگوئه",
+  "code": "URU",
+  "iso2": "uy",
+  "flag": "https://flagcdn.com/w80/uy.png",
+  "group": "H"
+ },
+ {
+  "id": "33",
+  "name": "France",
+  "name_fa": "فرانسه",
+  "code": "FRA",
+  "iso2": "fr",
+  "flag": "https://flagcdn.com/w80/fr.png",
+  "group": "I"
+ },
+ {
+  "id": "34",
+  "name": "Senegal",
+  "name_fa": "سنگال",
+  "code": "SEN",
+  "iso2": "sn",
+  "flag": "https://flagcdn.com/w80/sn.png",
+  "group": "I"
+ },
+ {
+  "id": "35",
+  "name": "Iraq",
+  "name_fa": "عراق",
+  "code": "IRQ",
+  "iso2": "iq",
+  "flag": "https://flagcdn.com/w80/iq.png",
+  "group": "I"
+ },
+ {
+  "id": "36",
+  "name": "Norway",
+  "name_fa": "نروژ",
+  "code": "NOR",
+  "iso2": "no",
+  "flag": "https://flagcdn.com/w80/no.png",
+  "group": "I"
+ },
+ {
+  "id": "37",
+  "name": "Argentina",
+  "name_fa": "آرژانتین",
+  "code": "ARG",
+  "iso2": "ar",
+  "flag": "https://flagcdn.com/w80/ar.png",
+  "group": "J"
+ },
+ {
+  "id": "38",
+  "name": "Algeria",
+  "name_fa": "الجزایر",
+  "code": "ALG",
+  "iso2": "dz",
+  "flag": "https://flagcdn.com/w80/dz.png",
+  "group": "J"
+ },
+ {
+  "id": "39",
+  "name": "Austria",
+  "name_fa": "اتریش",
+  "code": "AUT",
+  "iso2": "at",
+  "flag": "https://flagcdn.com/w80/at.png",
+  "group": "J"
+ },
+ {
+  "id": "40",
+  "name": "Jordan",
+  "name_fa": "اردن",
+  "code": "JOR",
+  "iso2": "jo",
+  "flag": "https://flagcdn.com/w80/jo.png",
+  "group": "J"
+ },
+ {
+  "id": "41",
+  "name": "Portugal",
+  "name_fa": "پرتغال",
+  "code": "POR",
+  "iso2": "pt",
+  "flag": "https://flagcdn.com/w80/pt.png",
+  "group": "K"
+ },
+ {
+  "id": "42",
+  "name": "Democratic Republic of the Congo",
+  "name_fa": "جمهوری دموکراتیک کنگو",
+  "code": "COD",
+  "iso2": "cd",
+  "flag": "https://flagcdn.com/w80/cd.png",
+  "group": "K"
+ },
+ {
+  "id": "43",
+  "name": "Uzbekistan",
+  "name_fa": "ازبکستان",
+  "code": "UZB",
+  "iso2": "uz",
+  "flag": "https://flagcdn.com/w80/uz.png",
+  "group": "K"
+ },
+ {
+  "id": "44",
+  "name": "Colombia",
+  "name_fa": "کلمبیا",
+  "code": "COL",
+  "iso2": "co",
+  "flag": "https://flagcdn.com/w80/co.png",
+  "group": "K"
+ },
+ {
+  "id": "45",
+  "name": "England",
+  "name_fa": "انگلستان",
+  "code": "ENG",
+  "iso2": "eng",
+  "flag": "https://flagcdn.com/w80/gb-eng.png",
+  "group": "L"
+ },
+ {
+  "id": "46",
+  "name": "Croatia",
+  "name_fa": "کرواسی",
+  "code": "CRO",
+  "iso2": "hr",
+  "flag": "https://flagcdn.com/w80/hr.png",
+  "group": "L"
+ },
+ {
+  "id": "47",
+  "name": "Ghana",
+  "name_fa": "غنا",
+  "code": "GHA",
+  "iso2": "gh",
+  "flag": "https://flagcdn.com/w80/gh.png",
+  "group": "L"
+ },
+ {
+  "id": "48",
+  "name": "Panama",
+  "name_fa": "پاناما",
+  "code": "PAN",
+  "iso2": "pa",
+  "flag": "https://flagcdn.com/w80/pa.png",
+  "group": "L"
+ }
+]

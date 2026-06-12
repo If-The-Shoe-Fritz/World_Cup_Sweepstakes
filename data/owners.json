@@ -1,0 +1,146 @@
+[
+ {
+  "id": "o1",
+  "name": "Justin W",
+  "team_ids": [
+   "21",
+   "22",
+   "30"
+  ]
+ },
+ {
+  "id": "o2",
+  "name": "Ben L",
+  "team_ids": [
+   "9",
+   "20",
+   "28"
+  ]
+ },
+ {
+  "id": "o3",
+  "name": "Shane C",
+  "team_ids": [
+   "25",
+   "19",
+   "40"
+  ]
+ },
+ {
+  "id": "o4",
+  "name": "Brendon J",
+  "team_ids": [
+   "32",
+   "23",
+   "42"
+  ]
+ },
+ {
+  "id": "o5",
+  "name": "Eric L",
+  "team_ids": [
+   "13",
+   "7",
+   "36"
+  ]
+ },
+ {
+  "id": "o6",
+  "name": "Sam F",
+  "team_ids": [
+   "1",
+   "39",
+   "31"
+  ]
+ },
+ {
+  "id": "o7",
+  "name": "Aaron T",
+  "team_ids": [
+   "29",
+   "8",
+   "18"
+  ]
+ },
+ {
+  "id": "o8",
+  "name": "Ashton D",
+  "team_ids": [
+   "17",
+   "27",
+   "47"
+  ]
+ },
+ {
+  "id": "o9",
+  "name": "David W",
+  "team_ids": [
+   "44",
+   "15",
+   "48"
+  ]
+ },
+ {
+  "id": "o10",
+  "name": "Shane F",
+  "team_ids": [
+   "46",
+   "5",
+   "14"
+  ]
+ },
+ {
+  "id": "o11",
+  "name": "Michael W",
+  "team_ids": [
+   "45",
+   "3",
+   "12"
+  ]
+ },
+ {
+  "id": "o12",
+  "name": "Garry S",
+  "team_ids": [
+   "34",
+   "26",
+   "35"
+  ]
+ },
+ {
+  "id": "o13",
+  "name": "Rick M",
+  "team_ids": [
+   "10",
+   "38",
+   "43"
+  ]
+ },
+ {
+  "id": "o14",
+  "name": "Casey M",
+  "team_ids": [
+   "37",
+   "24",
+   "2"
+  ]
+ },
+ {
+  "id": "o15",
+  "name": "Tim C",
+  "team_ids": [
+   "33",
+   "16",
+   "6"
+  ]
+ },
+ {
+  "id": "o16",
+  "name": "Luke K",
+  "team_ids": [
+   "41",
+   "4",
+   "11"
+  ]
+ }
+]
