@@ -159,10 +159,12 @@ const Engine = {
       const goalPts = agg.gf * S.goalFor + agg.ga * S.goalAgainst;
       const csPts = agg.cs * S.cleanSheet;
 
-      // cumulative progression bonuses banked across the owner's teams
+      // cumulative progression bonuses + per-team point contribution
       let advancePts = 0;
       const teamStages = {};
+      const contributions = [];
       o.team_ids.forEach((id) => {
+        const tr = rec[id];
         const reached = prog.reached[id];
         let banked = 0;
         CONFIG.progression.forEach((s) => {
@@ -171,7 +173,29 @@ const Engine = {
         if (prog.championId === id) banked += S.champion;
         advancePts += banked;
         teamStages[id] = { deepest: prog.deepest[id], banked };
+
+        const tResult = tr.w * S.result.win + tr.d * S.result.draw + tr.l * S.result.loss;
+        const tGoals = tr.gf * S.goalFor + tr.ga * S.goalAgainst;
+        const tCs = tr.cs * S.cleanSheet;
+        contributions.push({
+          team: tr.team,
+          rec: tr,
+          resultPts: tResult,
+          goalPts: tGoals,
+          csPts: tCs,
+          banked,
+          deepest: prog.deepest[id],
+          champion: prog.championId === id,
+          total: tResult + tGoals + tCs + banked,
+        });
       });
+      contributions.sort(
+        (a, b) =>
+          b.total - a.total ||
+          b.rec.gf - a.rec.gf ||
+          b.rec.gd - a.rec.gd ||
+          a.team.name.localeCompare(b.team.name)
+      );
 
       const total = resultPts + goalPts + csPts + advancePts;
       return {
@@ -180,6 +204,8 @@ const Engine = {
         agg,
         breakdown: { resultPts, goalPts, csPts, advancePts },
         teamStages,
+        contributions, // owner's teams ranked by points earned
+        mvp: contributions[0] && contributions[0].total > 0 ? contributions[0] : null,
         champion: o.team_ids.includes(prog.championId),
         total,
       };

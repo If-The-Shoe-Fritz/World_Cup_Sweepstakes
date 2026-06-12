@@ -203,6 +203,9 @@ const UI = {
             <span class="oc-pts">${r.total}<small>pts</small></span>
           </div>
           <div class="oc-teams">${teams}</div>
+          ${r.mvp
+            ? `<div class="oc-mvp">⭐ Top: ${flagImg(r.mvp.team, "ocmvpflag")}<span>${this.esc(r.mvp.team.name)}</span><b>${r.mvp.total}</b></div>`
+            : `<div class="oc-mvp oc-mvp-none">⭐ Top performer — TBD</div>`}
           <div class="oc-stat">
             <span>${r.agg.w}<small>W</small></span>
             <span>${r.agg.d}<small>D</small></span>
@@ -233,30 +236,55 @@ const UI = {
         <span class="bar-track"><span class="bar-fill ${cls}" style="width:${(Math.max(val, 0) / maxBar) * 100}%"></span></span>
         <span class="bar-v">${val >= 0 ? val : val}</span></div>`;
 
-    const teamCards = r.owner.team_ids
-      .map((tid) => {
-        const t = Data.team(tid);
-        const rec = r.teams.find((x) => x.team.id === tid);
+    const medals = ["🥇", "🥈", "🥉"];
+
+    // ranked "who's earning me points" strip
+    const perfRows = r.contributions
+      .map((c, i) => {
+        const stageTxt = c.deepest !== "group"
+          ? "reached " + this.stageLabel(c.deepest)
+          : c.rec.mp
+            ? `${c.rec.w}W ${c.rec.d}D ${c.rec.l}L`
+            : "not played yet";
+        return `<div class="perf-row ${i === 0 && c.total > 0 ? "perf-top" : ""}">
+          <span class="perf-rank">${medals[i] || i + 1}</span>
+          ${flagImg(c.team, "perfflag")}
+          <span class="perf-name">${this.esc(c.team.name)}</span>
+          <span class="perf-meta">${c.rec.gf} GF · ${stageTxt}</span>
+          <span class="perf-pts">${c.total}<small>pts</small></span>
+        </div>`;
+      })
+      .join("");
+    const topPerformers = `<div class="card perf-card">
+      <h3>Top performers${r.mvp ? ` · MVP <b class="mvp-name">${this.esc(r.mvp.team.name)}</b>` : ""}</h3>
+      <div class="perf-list">${perfRows}</div>
+    </div>`;
+
+    // detailed cards, ordered best-first to match the ranking above
+    const teamCards = r.contributions
+      .map((c, i) => {
+        const t = c.team;
+        const tid = t.id;
+        const rec = c.rec;
         const stage = r.teamStages[tid];
         const fixtures = Data.matches
           .filter((m) => m.home_id === tid || m.away_id === tid)
           .sort((a, b) => a.id - b.id);
-        const fxHtml = fixtures
-          .map((m) => this.miniFixture(m, tid))
-          .join("");
+        const fxHtml = fixtures.map((m) => this.miniFixture(m, tid)).join("");
         const stageBadge = stage.deepest !== "group"
           ? `<span class="reach">Reached ${this.stageLabel(stage.deepest)}${stage.banked ? ` · +${stage.banked}` : ""}</span>`
           : "";
         return `<div class="card team-card">
           <div class="tc-head">
+            <span class="tc-medal">${medals[i] || ""}</span>
             ${flagImg(t, "tcflag")}
             <div class="tc-id">
               <div class="tc-name">${this.esc(t.name)} <span class="tc-grp">Grp ${this.esc(t.group)}</span></div>
-              <div class="tc-rec">${rec ? `${rec.mp} P · ${rec.w}-${rec.d}-${rec.l} · ${rec.gf}:${rec.ga}` : "no games yet"}</div>
+              <div class="tc-rec">${rec.mp ? `${rec.mp} P · ${rec.w}-${rec.d}-${rec.l} · ${rec.gf}:${rec.ga}` : "no games yet"}</div>
             </div>
-            ${this.formBadges(rec ? rec.form : [])}
+            <span class="tc-pts">${c.total}<small>pts</small></span>
           </div>
-          ${stageBadge}
+          <div class="tc-formrow">${this.formBadges(rec.form)}${stageBadge}</div>
           <div class="tc-fixtures">${fxHtml}</div>
         </div>`;
       })
@@ -282,6 +310,8 @@ const UI = {
         ${b.csPts ? bar("Clean sheets", b.csPts, "bf-cs") : ""}
         <div class="bd-total">Total <b>${r.total}</b></div>
       </div>
+
+      ${topPerformers}
 
       <div class="team-cards">${teamCards}</div>
     </section>`;
