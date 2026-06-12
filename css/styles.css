@@ -158,6 +158,8 @@ small { font-size: 0.72em; color: var(--muted); font-weight: 600; }
 .mteam { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .mteam.away { align-items: flex-end; text-align: right; }
 .mteam.away .team { flex-direction: row-reverse; }
+/* keep the owner chip sized to its text, not stretched to the column width */
+.mteam.home .chip { align-self: flex-start; max-width: 100%; }
 .mteam-main { display: flex; min-width: 0; }
 .mteam.win .tname { color: var(--gold); }
 .mscore { font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; gap: 5px; }
@@ -230,6 +232,8 @@ td.c-owner { display: flex; align-items: center; gap: 7px; }
 .nxflag { width: 40px; height: 28px; border-radius: 5px; object-fit: cover; box-shadow: 0 0 0 1px rgba(0,0,0,.3); flex: none; }
 .nx-meta { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .nx-side.right .nx-meta { align-items: flex-end; }
+.nx-meta .chip { align-self: flex-start; max-width: 100%; }
+.nx-side.right .nx-meta .chip { align-self: flex-end; }
 .nx-team { font-weight: 800; font-size: 1.02rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .nx-vs { color: var(--muted2); font-weight: 800; font-size: 0.85rem; }
 .nx-score { font-size: 1.5rem; font-weight: 900; color: var(--red); font-variant-numeric: tabular-nums; }
