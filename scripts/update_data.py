@@ -50,19 +50,34 @@ KO_STAGE = {
 }
 
 # --- name matching ----------------------------------------------------------
-# ESPN sometimes names a country differently to our data. Normalise everything
-# (lowercase, strip accents + punctuation) and register the known variants.
+# Different feeds spell countries differently. We normalise everything
+# (lowercase, strip accents + punctuation) and register every variant we might
+# see from ESPN / FIFA / common usage. Keys are the normalised form of OUR team
+# name; values are alternative spellings that should map to the same team.
+# When ESPN throws a name we haven't mapped, it's logged (see UNMATCHED) so it
+# can be added here — that's how we keep this working all the way to the final.
 SYNONYMS = {
-    "unitedstates": ["usa", "unitedstatesofamerica", "usmnt"],
-    "southkorea": ["korearepublic", "korea", "korearep", "kor"],
-    "czechrepublic": ["czechia"],
-    "turkey": ["turkiye"],
-    "ivorycoast": ["cotedivoire"],
+    "unitedstates": ["usa", "usmnt", "unitedstatesofamerica", "us"],
+    "southkorea": ["korearepublic", "republicofkorea", "korea", "korearep", "kor", "skorea"],
+    "czechrepublic": ["czechia", "czech"],
+    "turkey": ["turkiye", "tuerkiye"],
+    "ivorycoast": ["cotedivoire", "cotedlvoire", "civ"],
     "capeverde": ["caboverde", "capeverdeislands"],
-    "bosniaandherzegovina": ["bosniaherzegovina", "bosnia"],
-    "democraticrepublicofthecongo": ["congodr", "drcongo", "drc", "congokinshasa", "congodemrep"],
-    "iran": ["iriran", "iranislamicrepublic"],
-    "saudiarabia": ["ksa"],
+    "bosniaandherzegovina": ["bosniaherzegovina", "bosniaherzegovina", "bosnia", "bih", "bosniaherz"],
+    "democraticrepublicofthecongo": [
+        "congodr", "drcongo", "drc", "congokinshasa", "congodemrep",
+        "democraticrepubliccongo", "congodemocraticrepublic", "rdcongo", "drcongocongo",
+    ],
+    "iran": ["iriran", "iranislamicrepublic", "islamicrepublicofiran"],
+    "saudiarabia": ["ksa", "saudi"],
+    "netherlands": ["holland", "thenetherlands", "ned"],
+    "northmacedonia": ["macedonia", "fyrmacedonia"],  # harmless if absent from the draw
+    "unitedarabemirates": ["uae"],
+    "newzealand": ["nz", "newzealandnz"],
+    "southafrica": ["rsa"],
+    "england": ["eng"],
+    "scotland": ["sco"],
+    "wales": ["cymru"],
 }
 
 
@@ -76,14 +91,21 @@ def norm(name):
 def build_name_lookup(teams):
     lut = {}
     for t in teams:
-        key = norm(t["name"])
-        lut[key] = t["id"]
+        lut[norm(t["name"])] = t["id"]
+        # also index the 3-letter FIFA code (ESPN exposes abbreviations too)
+        if t.get("code"):
+            lut.setdefault(norm(t["code"]), t["id"])
     # attach declared synonyms to whichever of our teams they belong to
     for canon, variants in SYNONYMS.items():
         if canon in lut:
             for v in variants:
                 lut.setdefault(norm(v), lut[canon])
     return lut
+
+
+# names ESPN gave us that we couldn't map — surfaced in the run log so the
+# SYNONYMS table above can be extended without guesswork.
+UNMATCHED = set()
 
 
 # --- ESPN fetch -------------------------------------------------------------
@@ -125,10 +147,15 @@ def parse_event(ev, name_lut):
         sides = {}
         for c in comp.get("competitors", []):
             team = c.get("team", {})
-            nm = team.get("displayName") or team.get("name") or team.get("shortDisplayName") or team.get("location")
-            tid = name_lut.get(norm(nm))
+            # try every name field ESPN offers before giving up
+            candidates = [
+                team.get("displayName"), team.get("name"), team.get("shortDisplayName"),
+                team.get("location"), team.get("nickname"), team.get("abbreviation"),
+            ]
+            tid = next((name_lut[norm(c)] for c in candidates if c and norm(c) in name_lut), None)
             if tid is None:
-                return None  # a team we don't own/track — skip the whole event
+                UNMATCHED.add(team.get("displayName") or team.get("name") or "?")
+                return None  # a team we couldn't map — logged for follow-up
             score = c.get("score")
             try:
                 score = int(score)
@@ -360,6 +387,8 @@ def main():
         "finished": played,
     })
     print(f"ESPN events parsed: {len(results)} · fixtures updated: {updated} · finished so far: {played}/{len(matches)}")
+    if UNMATCHED:
+        print("  ⚠ unmatched team names (add to SYNONYMS): " + ", ".join(sorted(UNMATCHED)), file=sys.stderr)
     return 0
 
 
