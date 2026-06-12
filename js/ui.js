@@ -23,6 +23,23 @@ const UI = {
     return `${n} ${word}${n === 1 ? "" : "s"}`;
   },
 
+  /* All kick-off times shown in CONFIG.displayTZ (AEST) */
+  fmtTime(d) {
+    return d.toLocaleTimeString("en-AU", { timeZone: CONFIG.displayTZ, hour: "2-digit", minute: "2-digit" });
+  },
+  fmtDayShort(d) {
+    return d.toLocaleDateString("en-AU", { timeZone: CONFIG.displayTZ, weekday: "short", day: "numeric", month: "short" });
+  },
+  fmtDayLong(d) {
+    return d.toLocaleDateString("en-AU", { timeZone: CONFIG.displayTZ, weekday: "long", day: "numeric", month: "long" });
+  },
+  fmtDateShort(d) {
+    return d.toLocaleDateString("en-AU", { timeZone: CONFIG.displayTZ, day: "numeric", month: "short" });
+  },
+  dayKey(d) {
+    return new Intl.DateTimeFormat("en-CA", { timeZone: CONFIG.displayTZ }).format(d);
+  },
+
   // plain-English list of where an owner's points come from, e.g.
   // [{icon,label:"2 wins",calc:"2 × 3",pts:6}, {icon,label:"5 goals",...}]
   pointParts(r) {
@@ -83,13 +100,9 @@ const UI = {
       return `<span class="tag tag-live"><span class="dot"></span>LIVE ${UI.esc(m.status)}</span>`;
     if (m.finished) return `<span class="tag tag-ft">FT</span>`;
     const d = Engine.matchDate(m);
-    const day = d
-      ? d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })
-      : "";
-    const time = d
-      ? d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
-      : "";
-    return `<span class="tag tag-up">${day} · ${time}</span>`;
+    const day = d ? this.fmtDayShort(d) : "";
+    const time = d ? this.fmtTime(d) : "";
+    return `<span class="tag tag-up">${day} · ${time} ${CONFIG.tzLabel}</span>`;
   },
 
   stageLabel(type) {
@@ -106,8 +119,10 @@ const UI = {
     const played = Engine.isPlayed(m);
     const live = Engine.isLive(m);
     const stad = Data.stadium(m.stadium_id);
+    const hWin = played && m.home_score > m.away_score;
+    const aWin = played && m.away_score > m.home_score;
     const score = played || live
-      ? `<span class="mscore ${live ? "live" : ""}">${m.home_score ?? 0}<span>–</span>${m.away_score ?? 0}</span>`
+      ? `<span class="mscore ${live ? "live" : ""}"><b class="${hWin ? "sc-win" : ""}">${m.home_score ?? 0}</b><span>–</span><b class="${aWin ? "sc-win" : ""}">${m.away_score ?? 0}</b></span>`
       : `<span class="mvs">vs</span>`;
     const groupTag = m.type === "group"
       ? `Group ${this.esc(m.group)} · MD${this.esc(m.matchday)}`
@@ -220,10 +235,7 @@ const UI = {
     const ao = away ? Data.ownerForTeam(away.id) : null;
     const stad = Data.stadium(m.stadium_id);
     const d = Engine.matchDate(m);
-    const when = d
-      ? d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) +
-        " · " + d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
-      : "";
+    const when = d ? `${this.fmtDayShort(d)} · ${this.fmtTime(d)} ${CONFIG.tzLabel}` : "";
     const tag = m.type === "group"
       ? `Group ${this.esc(m.group)} · Matchday ${this.esc(m.matchday)}`
       : this.stageLabel(m.type);
@@ -236,7 +248,7 @@ const UI = {
     const mid = isLive
       ? `<span class="nx-score">${m.home_score ?? 0}–${m.away_score ?? 0}</span>`
       : `<span class="nx-vs">vs</span>`;
-    return `<div class="nextcard ${isLive ? "is-live" : ""}" ${isLive ? "" : `id="nextup" data-date="${m.date}"`}>
+    return `<div class="nextcard ${isLive ? "is-live" : ""}" ${isLive || !d ? "" : `id="nextup" data-date="${d.toISOString()}"`}>
       <div class="nx-top"><span class="nx-label">${isLive ? "⚽ On now" : "⚽ Next kick-off"}</span>${right}</div>
       <div class="nx-body">
         <div class="nx-side">
@@ -436,7 +448,7 @@ const UI = {
       cls = "live";
     } else {
       const d = Engine.matchDate(m);
-      res = d ? d.toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "TBD";
+      res = d ? this.fmtDateShort(d) : "TBD";
       cls = "up";
     }
     return `<div class="mfx mfx-${cls}">
@@ -472,7 +484,7 @@ const UI = {
     const byDay = {};
     list.forEach((m) => {
       const d = Engine.matchDate(m);
-      const key = d ? d.toISOString().slice(0, 10) : "tbd";
+      const key = d ? this.dayKey(d) : "tbd";
       (byDay[key] = byDay[key] || []).push(m);
     });
 
@@ -494,13 +506,10 @@ const UI = {
       ? Object.keys(byDay)
           .sort()
           .map((day) => {
-            const label = day === "tbd"
-              ? "Date TBD"
-              : new Date(day + "T12:00:00").toLocaleDateString(undefined, {
-                  weekday: "long", day: "numeric", month: "long",
-                });
+            const first = Engine.matchDate(byDay[day][0]);
+            const label = day === "tbd" || !first ? "Date TBD" : this.fmtDayLong(first);
             return `<div class="day-group">
-              <h3 class="day-h">${label}</h3>
+              <h3 class="day-h">${label} <span class="day-tz">${CONFIG.tzLabel}</span></h3>
               <div class="match-list">${byDay[day].map((m) => this.matchCard(m)).join("")}</div>
             </div>`;
           })
