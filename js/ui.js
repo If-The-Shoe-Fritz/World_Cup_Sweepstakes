@@ -19,6 +19,37 @@ const UI = {
   initials(name) {
     return name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
   },
+  plural(n, word) {
+    return `${n} ${word}${n === 1 ? "" : "s"}`;
+  },
+
+  // plain-English list of where an owner's points come from, e.g.
+  // [{icon,label:"2 wins",calc:"2 × 3",pts:6}, {icon,label:"5 goals",...}]
+  pointParts(r) {
+    const S = CONFIG.scoring;
+    const a = r.agg;
+    const parts = [];
+    if (a.w) parts.push({ icon: "✅", label: this.plural(a.w, "win"), calc: `${a.w} × ${S.result.win}`, pts: a.w * S.result.win });
+    if (a.d) parts.push({ icon: "🤝", label: this.plural(a.d, "draw"), calc: `${a.d} × ${S.result.draw}`, pts: a.d * S.result.draw });
+    if (S.result.loss && a.l) parts.push({ icon: "❌", label: this.plural(a.l, "loss").replace("losss", "losses"), calc: `${a.l} × ${S.result.loss}`, pts: a.l * S.result.loss });
+    if (a.gf) parts.push({ icon: "⚽", label: this.plural(a.gf, "goal"), calc: `${a.gf} × ${S.goalFor}`, pts: a.gf * S.goalFor });
+    if (S.goalAgainst && a.ga) parts.push({ icon: "🥅", label: `${a.ga} conceded`, calc: `${a.ga} × ${S.goalAgainst}`, pts: a.ga * S.goalAgainst });
+    if (r.breakdown.advancePts) parts.push({ icon: "🏆", label: "deep-run bonus", calc: "", pts: r.breakdown.advancePts });
+    if (r.breakdown.csPts) parts.push({ icon: "🧤", label: this.plural(a.cs, "clean sheet"), calc: `${a.cs} × ${S.cleanSheet}`, pts: r.breakdown.csPts });
+    return parts;
+  },
+
+  // one-team version, e.g. "1 win (3) + 2 goals (2) = 5"
+  contribPlain(c) {
+    const S = CONFIG.scoring;
+    const p = [];
+    if (c.rec.w) p.push(`${this.plural(c.rec.w, "win")} (${c.rec.w * S.result.win})`);
+    if (c.rec.d) p.push(`${this.plural(c.rec.d, "draw")} (${c.rec.d * S.result.draw})`);
+    if (c.rec.gf) p.push(`${this.plural(c.rec.gf, "goal")} (${c.rec.gf * S.goalFor})`);
+    if (c.banked) p.push(`deep run (+${c.banked})`);
+    if (!p.length) return c.rec.mp ? "0 pts so far" : "not played yet";
+    return p.join(" + ") + ` = ${c.total}`;
+  },
 
   ownerChip(owner, opts = {}) {
     if (!owner) return `<span class="chip chip-tbd">TBD</span>`;
@@ -159,10 +190,13 @@ const UI = {
     </div>`;
 
     const scoringNote = `<div class="hint">
-      Win <b>${CONFIG.scoring.result.win}</b> · Draw <b>${CONFIG.scoring.result.draw}</b> ·
-      every goal <b>+${CONFIG.scoring.goalFor}</b> · deep-run bonuses
-      R32 +${CONFIG.scoring.advance.r32} → Champion +${CONFIG.scoring.champion}.
-      Tap a manager for the full breakdown.
+      <b>How points work:</b> ${CONFIG.scoring.result.win} for a win,
+      ${CONFIG.scoring.result.draw} for a draw, and
+      <b>+${CONFIG.scoring.goalFor} for every goal</b> your teams score —
+      plus bonus points the further a team goes (R32 +${CONFIG.scoring.advance.r32}
+      up to Champion +${CONFIG.scoring.champion}).
+      So 2 wins + 5 goals = ${2 * CONFIG.scoring.result.win + 5 * CONFIG.scoring.goalFor} points.
+      Tap any manager to see their exact sum.
     </div>`;
 
     return `<section class="view">
@@ -229,12 +263,22 @@ const UI = {
     const r = rows.find((x) => x.owner.id === id);
     if (!r) return `<section class="view"><p>Unknown manager.</p></section>`;
     const c = this.color(id);
-    const b = r.breakdown;
-    const maxBar = Math.max(b.resultPts, b.goalPts, b.advancePts, 1);
-    const bar = (label, val, cls) =>
-      `<div class="bar-row"><span class="bar-l">${label}</span>
-        <span class="bar-track"><span class="bar-fill ${cls}" style="width:${(Math.max(val, 0) / maxBar) * 100}%"></span></span>
-        <span class="bar-v">${val >= 0 ? val : val}</span></div>`;
+
+    // plain-English points breakdown
+    const parts = this.pointParts(r);
+    const plain = parts.length
+      ? parts.map((p) => `${p.label} <span class="bd-sub">(${p.pts})</span>`).join(" &nbsp;+&nbsp; ") +
+        ` &nbsp;=&nbsp; <b>${r.total} ${r.total === 1 ? "point" : "points"}</b>`
+      : "No points yet — none of their teams have kicked off.";
+    const receipt = parts
+      .map(
+        (p) => `<div class="bd-line">
+        <span class="bd-ic">${p.icon}</span>
+        <span class="bd-desc">${p.label.charAt(0).toUpperCase() + p.label.slice(1)}${p.calc ? ` <small>${p.calc} pts</small>` : ""}</span>
+        <span class="bd-eq">${p.pts >= 0 ? "+" : ""}${p.pts}</span>
+      </div>`
+      )
+      .join("");
 
     const medals = ["🥇", "🥈", "🥉"];
 
@@ -285,6 +329,7 @@ const UI = {
             <span class="tc-pts">${c.total}<small>pts</small></span>
           </div>
           <div class="tc-formrow">${this.formBadges(rec.form)}${stageBadge}</div>
+          <div class="tc-earned">📊 ${this.contribPlain(c)}</div>
           <div class="tc-fixtures">${fxHtml}</div>
         </div>`;
       })
@@ -303,12 +348,11 @@ const UI = {
       </div>
 
       <div class="card breakdown">
-        <h3>Where the points come from</h3>
-        ${bar("Results (W/D/L)", b.resultPts, "bf-res")}
-        ${bar("Goals scored", b.goalPts, "bf-goal")}
-        ${bar("Deep-run bonus", b.advancePts, "bf-adv")}
-        ${b.csPts ? bar("Clean sheets", b.csPts, "bf-cs") : ""}
+        <h3>How ${this.esc(r.owner.name)}'s points add up</h3>
+        <p class="bd-plain">${plain}</p>
+        <div class="bd-lines">${receipt}</div>
         <div class="bd-total">Total <b>${r.total}</b></div>
+        <p class="bd-key">3 pts a win · 1 a draw · +1 every goal · plus bonuses the further a team goes (R32 +${CONFIG.scoring.advance.r32} … Champion +${CONFIG.scoring.champion})</p>
       </div>
 
       ${topPerformers}
