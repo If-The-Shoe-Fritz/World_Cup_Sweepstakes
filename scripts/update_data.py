@@ -30,9 +30,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(ROOT, "data")
 
 # ESPN's undocumented-but-stable public scoreboard for the World Cup.
-ESPN = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates={date}"
+# A single date-range request returns the whole tournament.
+ESPN = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates={start}-{end}"
 TOURNAMENT_START = datetime(2026, 6, 11, tzinfo=timezone.utc)
-TOURNAMENT_END = datetime(2026, 7, 19, tzinfo=timezone.utc)
+TOURNAMENT_END = datetime(2026, 7, 20, tzinfo=timezone.utc)
+# ESPN returns an EMPTY payload to unfamiliar User-Agents, so look like a browser.
+UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 
 # Map ESPN's stage wording onto our match `type` keys, for filling knockouts.
 KO_STAGE = {
@@ -110,30 +113,23 @@ UNMATCHED = set()
 
 # --- ESPN fetch -------------------------------------------------------------
 def fetch_json(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "wc26-sweepstakes"})
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
     with urllib.request.urlopen(req, timeout=30) as r:
         return json.loads(r.read().decode("utf-8"))
 
 
 def espn_results(name_lut):
-    """Return a list of normalised result dicts pulled from ESPN."""
+    """Pull the whole tournament's results from ESPN in one request."""
+    url = ESPN.format(
+        start=TOURNAMENT_START.strftime("%Y%m%d"),
+        end=TOURNAMENT_END.strftime("%Y%m%d"),
+    )
+    data = fetch_json(url)
     results = []
-    today = datetime.now(timezone.utc)
-    day = TOURNAMENT_START
-    last = min(today, TOURNAMENT_END)
-    while day.date() <= last.date():
-        url = ESPN.format(date=day.strftime("%Y%m%d"))
-        try:
-            data = fetch_json(url)
-        except Exception as e:  # one bad day shouldn't kill the run
-            print(f"  ! {day.date()} fetch failed: {e}", file=sys.stderr)
-            day += timedelta(days=1)
-            continue
-        for ev in data.get("events", []):
-            r = parse_event(ev, name_lut)
-            if r:
-                results.append(r)
-        day += timedelta(days=1)
+    for ev in data.get("events", []):
+        r = parse_event(ev, name_lut)
+        if r:
+            results.append(r)
     return results
 
 
@@ -147,14 +143,15 @@ def parse_event(ev, name_lut):
         sides = {}
         for c in comp.get("competitors", []):
             team = c.get("team", {})
+            nm = team.get("displayName") or team.get("name") or "?"
             # try every name field ESPN offers before giving up
             candidates = [
                 team.get("displayName"), team.get("name"), team.get("shortDisplayName"),
                 team.get("location"), team.get("nickname"), team.get("abbreviation"),
             ]
-            tid = next((name_lut[norm(c)] for c in candidates if c and norm(c) in name_lut), None)
+            tid = next((name_lut[norm(x)] for x in candidates if x and norm(x) in name_lut), None)
             if tid is None:
-                UNMATCHED.add(team.get("displayName") or team.get("name") or "?")
+                UNMATCHED.add(nm)
                 return None  # a team we couldn't map — logged for follow-up
             score = c.get("score")
             try:
