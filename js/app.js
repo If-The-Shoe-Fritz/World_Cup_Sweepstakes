@@ -129,7 +129,7 @@ const App = {
     this.setFreshness("");
     const el = document.getElementById("nextup");
     if (!el) return;
-    const target = Engine.matchDate({ date: el.dataset.date });
+    const target = new Date(el.dataset.date); // ISO instant
     const span = el.querySelector(".cd");
     if (!target || !span) return;
     let diff = target - new Date();

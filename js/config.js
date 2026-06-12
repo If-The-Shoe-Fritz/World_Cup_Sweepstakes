@@ -56,6 +56,19 @@ const CONFIG = {
   ],
   // order used for "deepest stage reached" (third-place ignored for progression)
   progression: ["group", "r32", "r16", "qf", "sf", "final"],
+
+  /* Kick-off times are stored as each venue's LOCAL time. We convert them to a
+   * single display timezone so everyone sees the same clock. The lads are in
+   * Australia, so default to AEST. `venueOffset` is each stadium's UTC offset
+   * for the Jun–Jul 2026 window (US/Canada on summer time; Mexico has no DST). */
+  displayTZ: "Australia/Brisbane", // AEST year-round (no daylight saving)
+  tzLabel: "AEST",
+  venueOffset: {
+    "1": -6, "2": -6, "3": -6,             // Mexico (CST, no DST)
+    "4": -5, "5": -5, "6": -5,             // US Central (CDT)
+    "7": -4, "8": -4, "9": -4, "10": -4, "11": -4, "12": -4, // US/Canada Eastern (EDT)
+    "13": -7, "14": -7, "15": -7, "16": -7, // Pacific (PDT)
+  },
 };
 
 /* A distinct accent colour per owner, evenly spread around the colour wheel,

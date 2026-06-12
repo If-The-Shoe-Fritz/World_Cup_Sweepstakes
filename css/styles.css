@@ -162,6 +162,9 @@ small { font-size: 0.72em; color: var(--muted); font-weight: 600; }
 .mteam.win .tname { color: var(--gold); }
 .mscore { font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; gap: 5px; }
 .mscore span { color: var(--muted2); font-weight: 600; }
+.mscore b { font-weight: 800; color: var(--muted); }
+.mscore b.sc-win { color: var(--gold); }
+.day-tz { font-size: 0.62rem; color: var(--muted2); font-weight: 700; }
 .mscore.live { color: var(--red); }
 .mvs { color: var(--muted2); font-weight: 700; font-size: 0.85rem; }
 .match-foot { margin-top: 9px; font-size: 0.72rem; color: var(--muted2); border-top: 1px solid var(--line); padding-top: 8px; }

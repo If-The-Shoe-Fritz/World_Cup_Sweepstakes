@@ -17,12 +17,15 @@ const Engine = {
     return m.home_id && m.away_id && m.home_id !== "0" && m.away_id !== "0";
   },
   matchDate(m) {
-    // "MM/DD/YYYY HH:MM" (venue local time) -> Date
+    // "MM/DD/YYYY HH:MM" is the VENUE's local wall time. Turn it into a true
+    // UTC instant using that venue's offset, so it can be shown in any timezone.
     if (!m.date) return null;
     const [d, t] = m.date.split(" ");
     const [mo, da, yr] = d.split("/").map(Number);
     const [h, mi] = (t || "00:00").split(":").map(Number);
-    return new Date(yr, mo - 1, da, h, mi);
+    const off = (CONFIG.venueOffset && CONFIG.venueOffset[m.stadium_id]) || 0;
+    // UTC = local - offset (offset is negative for the Americas)
+    return new Date(Date.UTC(yr, mo - 1, da, h - off, mi));
   },
 
   /* -- per-team record from every finished match -------------------------- */
