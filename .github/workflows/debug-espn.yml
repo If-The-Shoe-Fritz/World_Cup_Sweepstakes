@@ -5,6 +5,9 @@ on:
     branches: [claude/focused-ptolemy-cp4u4v]
   workflow_dispatch: {}
 
+permissions:
+  contents: write
+
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -13,27 +16,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
-      - name: Diagnose
+      - name: Run real updater
+        run: python scripts/update_data.py
+      - name: Commit + push (tests write access)
         run: |
-          python - <<'PY'
-          import json, urllib.request, importlib.util
-          spec = importlib.util.spec_from_file_location("u", "scripts/update_data.py")
-          u = importlib.util.module_from_spec(spec); spec.loader.exec_module(u)
-          url = u.ESPN.format(start="20260611", end="20260720")
-          print("SCRIPT URL:", url)
-          def events(ua):
-              req = urllib.request.Request(url, headers={"User-Agent": ua})
-              with urllib.request.urlopen(req, timeout=30) as r:
-                  return json.loads(r.read().decode())
-          for label, ua in [("script-UA", u.UA), ("short-UA", "Mozilla/5.0 probe")]:
-              try:
-                  d = events(ua); print(label, "-> events:", len(d.get("events", [])))
-              except Exception as e:
-                  print(label, "-> ERR", repr(e))
-          teams = json.load(open("data/teams.json"))
-          lut = u.build_name_lookup(teams)
-          res = u.espn_results(lut)
-          print("espn_results count:", len(res))
-          for r in res[:4]:
-              print("   ", r["home"]["name"], r["home"]["score"], "-", r["away"]["score"], r["away"]["name"], r["finished"])
-          PY
+          git config user.name "wc26-bot"
+          git config user.email "actions@github.com"
+          if [ -n "$(git status --porcelain data/teams.json data/matches.json data/grouptables.json data/owners.json data/stadiums.json)" ]; then
+            git add data/
+            git commit -m "Live scores via ESPN [skip ci]"
+            git push && echo "PUSH OK — write access works"
+          else
+            echo "No score changes."
+          fi
