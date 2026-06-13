@@ -116,7 +116,7 @@
   "home_id": "7",
   "away_id": "8",
   "home_score": 0,
-  "away_score": 0,
+  "away_score": 1,
   "home_scorers": null,
   "away_scorers": null,
   "group": "B",
@@ -124,7 +124,7 @@
   "date": "06/13/2026 12:00",
   "stadium_id": "15",
   "finished": false,
-  "status": "4'",
+  "status": "45'",
   "type": "group"
  },
  {
