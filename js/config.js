@@ -15,12 +15,15 @@ const CONFIG = {
    *  data/matches.json to enter a score yourself.
    * --------------------------------------------------------------------- */
   localData: "data/",
-  // Live scores are pulled from ESPN by a GitHub Action and committed to /data,
-  // so the browser just re-reads our own (always-fresh) local files. The old
-  // in-browser overlay is off — leave it disabled unless you wire a CORS-safe
-  // source of your own.
-  remote: { enabled: false },
-  refreshSeconds: 90, // how often the open page re-reads /data for new scores
+  // The committed /data files (kept fresh by the GitHub Action) are the base.
+  // On top of that, the browser pulls live scores straight from ESPN every
+  // refresh, so in-progress matches update in ~1 min instead of waiting on the
+  // Action. Falls back silently to /data if ESPN is unreachable/CORS-blocked.
+  live: {
+    enabled: true,
+    base: "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard",
+  },
+  refreshSeconds: 60, // how often the open page re-pulls scores
 
   /* -- SCORING SYSTEM ------------------------------------------------------
    *  Every owner banks points from their three teams. Change the numbers and

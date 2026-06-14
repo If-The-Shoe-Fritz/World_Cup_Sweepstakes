@@ -318,4 +318,21 @@ const Engine = {
   liveMatches() {
     return Data.matches.filter((m) => this.isLive(m));
   },
+
+  // The match to feature in the banner: a live one (per data), else one that has
+  // kicked off by the clock but whose data hasn't caught up yet, else the next
+  // upcoming. Stops a just-started match being skipped in favour of a later one.
+  currentMatch() {
+    const live = this.liveMatches();
+    if (live.length) return { match: live[0], live: true };
+    const now = Date.now();
+    const started = Data.matches
+      .filter((m) => !m.finished && this.hasTeams(m))
+      .map((m) => ({ m, d: this.matchDate(m) }))
+      .filter((x) => x.d && x.d.getTime() <= now && now - x.d.getTime() < 3 * 3600 * 1000)
+      .sort((a, b) => b.d - a.d); // most recently kicked-off first
+    if (started.length) return { match: started[0].m, live: true, awaiting: true };
+    const up = this.upcoming(1)[0];
+    return up ? { match: up, live: false } : null;
+  },
 };

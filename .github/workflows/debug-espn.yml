@@ -1,0 +1,14 @@
+name: debug-espn
+on:
+  push:
+    branches: [claude/focused-ptolemy-cp4u4v]
+jobs:
+  cors:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check ESPN CORS headers
+        run: |
+          echo "--- with Origin header (as a browser sends) ---"
+          curl -sI -H "Origin: https://if-the-shoe-fritz.github.io" \
+            "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260614" \
+            | grep -iE "access-control-allow-origin|http/|vary" || echo "(no ACAO header)"
