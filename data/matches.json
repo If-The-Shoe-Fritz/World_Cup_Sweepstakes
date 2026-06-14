@@ -107,8 +107,8 @@
   "matchday": "1",
   "date": "06/13/2026 18:00",
   "stadium_id": "11",
-  "finished": false,
-  "status": "85'",
+  "finished": true,
+  "status": "finished",
   "type": "group"
  },
  {
