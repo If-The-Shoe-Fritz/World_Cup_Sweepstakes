@@ -164,15 +164,15 @@
   "home_id": "21",
   "away_id": "22",
   "home_score": 2,
-  "away_score": 1,
+  "away_score": 2,
   "home_scorers": null,
   "away_scorers": null,
   "group": "F",
   "matchday": "1",
   "date": "06/14/2026 15:00",
   "stadium_id": "4",
-  "finished": false,
-  "status": "84'",
+  "finished": true,
+  "status": "finished",
   "type": "group"
  },
  {
