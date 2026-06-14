@@ -103,7 +103,8 @@ const App = {
     const btn = document.getElementById("refreshBtn");
     if (btn) btn.classList.add("spin");
     try {
-      await Data.reloadLocal();
+      await Data.reloadLocal(); // committed base data
+      await Data.fetchLive(); // real-time ESPN overlay
     } catch (e) {
       /* keep showing the last good data on a hiccup */
     }

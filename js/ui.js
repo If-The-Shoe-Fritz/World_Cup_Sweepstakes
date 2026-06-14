@@ -225,10 +225,12 @@ const UI = {
 
   // prominent "what's on next" banner — shows both teams AND their managers
   nextMatchBanner() {
-    const live = Engine.liveMatches();
-    const m = live[0] || Engine.upcoming(1)[0];
-    if (!m) return "";
-    const isLive = live.length > 0;
+    const cur = Engine.currentMatch();
+    if (!cur) return "";
+    const m = cur.match;
+    const isLive = cur.live;
+    // "awaiting" = kicked off by the clock but no live score in the data yet
+    const hasLiveData = Engine.isLive(m) || Engine.isPlayed(m);
     const home = Engine.hasTeams(m) ? Data.team(m.home_id) : null;
     const away = Engine.hasTeams(m) ? Data.team(m.away_id) : null;
     const ho = home ? Data.ownerForTeam(home.id) : null;
@@ -243,9 +245,11 @@ const UI = {
       .filter(Boolean)
       .join(" · ");
     const right = isLive
-      ? `<span class="tag tag-live"><span class="dot"></span>LIVE</span>`
+      ? (hasLiveData
+          ? `<span class="tag tag-live"><span class="dot"></span>LIVE</span>`
+          : `<span class="tag tag-live"><span class="dot"></span>KICKING OFF</span>`)
       : `<span class="nx-cd">kicks off in <span class="cd">—</span></span>`;
-    const mid = isLive
+    const mid = hasLiveData
       ? `<span class="nx-score">${m.home_score ?? 0}–${m.away_score ?? 0}</span>`
       : `<span class="nx-vs">vs</span>`;
     return `<div class="nextcard ${isLive ? "is-live" : ""}" ${isLive || !d ? "" : `id="nextup" data-date="${d.toISOString()}"`}>

@@ -45,8 +45,7 @@ const Data = {
 
   async load() {
     await this._loadLocal();
-    // best-effort live overlay (only if a CORS-safe remote is configured)
-    if (CONFIG.remote && CONFIG.remote.enabled) await this._overlayRemote();
+    await this.fetchLive(); // best-effort real-time overlay
     return this;
   },
 
@@ -74,54 +73,102 @@ const Data = {
     });
   },
 
-  /* Pull the upstream matches file directly in the browser and merge any
-   * fresher scores on top of the bundled data. Silent on failure. */
-  async _overlayRemote() {
-    if (!CONFIG.remote || !CONFIG.remote.enabled) return false;
+  /* ---- Live overlay straight from ESPN -----------------------------------
+   * Pulls the public ESPN scoreboard in the browser and overlays live scores
+   * onto our fixtures in real time, so liveness doesn't depend on the 15-min
+   * GitHub Action. Matches ESPN events to our teams by name/code. Entirely
+   * best-effort: any failure (incl. CORS) silently leaves committed data. */
+  _norm(s) {
+    // NFKD splits accents into combining marks; the [^a-z0-9] strip then drops
+    // them, so "Türkiye" -> "turkiye" and "Curaçao" -> "curacao".
+    return s ? s.normalize("NFKD").toLowerCase().replace(/[^a-z0-9]/g, "") : "";
+  },
+  _nameLut() {
+    if (this.__lut) return this.__lut;
+    const SYN = {
+      unitedstates: ["usa", "usmnt", "unitedstatesofamerica", "us"],
+      southkorea: ["korearepublic", "republicofkorea", "korea", "kor"],
+      czechrepublic: ["czechia", "czech"],
+      turkey: ["turkiye"],
+      ivorycoast: ["cotedivoire"],
+      capeverde: ["caboverde"],
+      bosniaandherzegovina: ["bosniaherzegovina", "bosnia", "bih"],
+      democraticrepublicofthecongo: ["congodr", "drcongo", "drc", "congokinshasa"],
+      iran: ["iriran"],
+      saudiarabia: ["ksa"],
+      netherlands: ["holland"],
+    };
+    const lut = {};
+    this.teams.forEach((t) => {
+      lut[this._norm(t.name)] = t.id;
+      if (t.code && lut[this._norm(t.code)] == null) lut[this._norm(t.code)] = t.id;
+    });
+    Object.entries(SYN).forEach(([canon, vars]) => {
+      if (lut[canon] != null) vars.forEach((v) => {
+        const k = this._norm(v);
+        if (lut[k] == null) lut[k] = lut[canon];
+      });
+    });
+    this.__lut = lut;
+    return lut;
+  },
+  async fetchLive() {
+    if (!CONFIG.live || !CONFIG.live.enabled) return false;
     try {
-      const url = CONFIG.remote.base + CONFIG.remote.files.matches + "?t=" + Date.now();
+      const lut = this._nameLut();
+      const fmt = (d) => d.toISOString().slice(0, 10).replace(/-/g, "");
+      const now = Date.now();
+      // yesterday..tomorrow (UTC) covers the venue-timezone spread
+      const url = `${CONFIG.live.base}?dates=${fmt(new Date(now - 864e5))}-${fmt(new Date(now + 864e5))}`;
       const r = await fetch(url, { cache: "no-store" });
       if (!r.ok) return false;
-      const raw = await r.json();
-      const sc = (v) => {
-        const n = parseInt(v, 10);
-        return Number.isNaN(n) ? null : n;
-      };
-      const live = {};
-      raw.forEach((m) => {
-        live[parseInt(m.id, 10)] = {
-          home_id: m.home_team_id,
-          away_id: m.away_team_id,
-          home_score: sc(m.home_score),
-          away_score: sc(m.away_score),
-          finished: String(m.finished).toUpperCase() === "TRUE",
-          status: m.time_elapsed || "notstarted",
-        };
-      });
-      let changed = false;
+      const data = await r.json();
+
+      const pair = {};
       this.matches.forEach((m) => {
-        const u = live[m.id];
-        if (!u) return;
-        // adopt upstream once anything has actually progressed for that match
-        const upstreamProgressed =
-          u.finished || (u.status && u.status !== "notstarted");
-        const slotsResolved = u.home_id !== "0" && u.away_id !== "0";
-        if (upstreamProgressed || slotsResolved) {
-          if (slotsResolved) {
-            m.home_id = u.home_id;
-            m.away_id = u.away_id;
-          }
-          m.home_score = u.home_score;
-          m.away_score = u.away_score;
-          m.finished = u.finished;
-          m.status = u.status;
-          changed = true;
-        }
+        if (m.home_id && m.away_id && m.home_id !== "0" && m.away_id !== "0")
+          pair[[m.home_id, m.away_id].sort().join("|")] = m;
       });
-      if (changed) this.meta.live = true;
+
+      let changed = false;
+      (data.events || []).forEach((ev) => {
+        try {
+          const comp = (ev.competitions || [])[0];
+          if (!comp) return;
+          const type = ((ev.status || comp.status || {}).type) || {};
+          if (type.state === "pre") return; // not started
+          const sides = {};
+          (comp.competitors || []).forEach((c) => {
+            const team = c.team || {};
+            const cand = [team.displayName, team.shortDisplayName, team.name, team.location, team.abbreviation];
+            let tid = null;
+            for (const nm of cand) {
+              const id = nm && lut[this._norm(nm)];
+              if (id != null) { tid = id; break; }
+            }
+            if (tid == null) return;
+            const sc = parseInt(c.score, 10);
+            sides[c.homeAway || "home"] = { id: tid, score: Number.isNaN(sc) ? 0 : sc };
+          });
+          if (!sides.home || !sides.away) return;
+          const m = pair[[sides.home.id, sides.away.id].sort().join("|")];
+          if (!m) return;
+          const finished = !!type.completed || type.state === "post";
+          const status = finished ? "finished" : (type.shortDetail || "live");
+          const map = {};
+          map[sides.home.id] = sides.home.score;
+          map[sides.away.id] = sides.away.score;
+          const nh = map[m.home_id], na = map[m.away_id];
+          if (m.home_score !== nh || m.away_score !== na || m.finished !== finished || m.status !== status) {
+            m.home_score = nh; m.away_score = na; m.finished = finished; m.status = status;
+            changed = true;
+          }
+        } catch (e) { /* skip a bad event */ }
+      });
+      if (changed) { this.meta.live = true; this.meta.live_at = new Date().toISOString(); }
       return changed;
     } catch (e) {
-      return false;
+      return false; // offline / CORS / ESPN down → keep committed data
     }
   },
 
