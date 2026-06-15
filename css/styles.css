@@ -307,7 +307,9 @@ td.c-owner { display: flex; align-items: center; gap: 7px; }
 .bd-desc { font-weight: 700; }
 .bd-desc small { color: var(--muted); font-weight: 600; margin-left: 4px; }
 .bd-eq { font-weight: 900; font-variant-numeric: tabular-nums; color: var(--gold); font-size: 1.05rem; }
-.bd-key { font-size: 0.74rem; color: var(--muted2); margin: 12px 0 0; line-height: 1.5; }
+.bd-tiebreak { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 12px 0 0; }
+.bd-tiebreak span { color: var(--muted2); font-weight: 600; }
+.bd-key { font-size: 0.74rem; color: var(--muted2); margin: 8px 0 0; line-height: 1.5; }
 
 /* per-team math on team cards */
 .tc-earned { margin-top: 10px; font-size: 0.82rem; font-weight: 700; color: var(--text); background: var(--surface); border: 1px dashed var(--line2); border-radius: 8px; padding: 7px 10px; }

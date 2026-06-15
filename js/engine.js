@@ -35,6 +35,7 @@ const Engine = {
       rec[t.id] = {
         team: t,
         mp: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0, cs: 0,
+        gw: 0, gdr: 0, gl: 0, // group-stage win / draw / loss (these earn points)
         form: [], // recent results, oldest->newest
       };
     });
@@ -45,6 +46,7 @@ const Engine = {
       const h = rec[m.home_id];
       const a = rec[m.away_id];
       if (!h || !a) return;
+      const grp = m.type === "group";
       const hs = m.home_score, as = m.away_score;
       h.mp++; a.mp++;
       h.gf += hs; h.ga += as;
@@ -53,10 +55,13 @@ const Engine = {
       if (hs === 0) a.cs++;
       if (hs > as) {
         h.w++; a.l++; h.pts += 3; h.form.push("W"); a.form.push("L");
+        if (grp) { h.gw++; a.gl++; }
       } else if (hs < as) {
         a.w++; h.l++; a.pts += 3; a.form.push("W"); h.form.push("L");
+        if (grp) { a.gw++; h.gl++; }
       } else {
         h.d++; a.d++; h.pts++; a.pts++; h.form.push("D"); a.form.push("D");
+        if (grp) { h.gdr++; a.gdr++; }
       }
     });
     Object.values(rec).forEach((r) => (r.gd = r.gf - r.ga));
@@ -151,16 +156,16 @@ const Engine = {
 
     const rows = Data.owners.map((o) => {
       const teams = o.team_ids.map((id) => rec[id]).filter(Boolean);
-      const agg = { mp: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, cs: 0 };
+      const agg = { mp: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, cs: 0, gw: 0, gdr: 0, gl: 0 };
       teams.forEach((t) => {
         agg.mp += t.mp; agg.w += t.w; agg.d += t.d; agg.l += t.l;
         agg.gf += t.gf; agg.ga += t.ga; agg.cs += t.cs;
+        agg.gw += t.gw; agg.gdr += t.gdr; agg.gl += t.gl;
       });
 
+      // points come from GROUP results only (knockouts via progression bonus)
       const resultPts =
-        agg.w * S.result.win + agg.d * S.result.draw + agg.l * S.result.loss;
-      const goalPts = agg.gf * S.goalFor + agg.ga * S.goalAgainst;
-      const csPts = agg.cs * S.cleanSheet;
+        agg.gw * S.result.win + agg.gdr * S.result.draw + agg.gl * S.result.loss;
 
       // cumulative progression bonuses + per-team point contribution
       let advancePts = 0;
@@ -171,25 +176,23 @@ const Engine = {
         const reached = prog.reached[id];
         let banked = 0;
         CONFIG.progression.forEach((s) => {
-          if (s !== "group" && reached.has(s)) banked += S.advance[s] || 0;
+          if (s === "group" || !reached.has(s)) return;
+          // the final is worth the winner's value if won, else the runner-up's
+          if (s === "final") banked += prog.championId === id ? S.champion : (S.advance.final || 0);
+          else banked += S.advance[s] || 0;
         });
-        if (prog.championId === id) banked += S.champion;
         advancePts += banked;
         teamStages[id] = { deepest: prog.deepest[id], banked };
 
-        const tResult = tr.w * S.result.win + tr.d * S.result.draw + tr.l * S.result.loss;
-        const tGoals = tr.gf * S.goalFor + tr.ga * S.goalAgainst;
-        const tCs = tr.cs * S.cleanSheet;
+        const tResult = tr.gw * S.result.win + tr.gdr * S.result.draw + tr.gl * S.result.loss;
         contributions.push({
           team: tr.team,
           rec: tr,
           resultPts: tResult,
-          goalPts: tGoals,
-          csPts: tCs,
           banked,
           deepest: prog.deepest[id],
           champion: prog.championId === id,
-          total: tResult + tGoals + tCs + banked,
+          total: tResult + banked,
         });
       });
       contributions.sort(
@@ -200,12 +203,12 @@ const Engine = {
           a.team.name.localeCompare(b.team.name)
       );
 
-      const total = resultPts + goalPts + csPts + advancePts;
+      const total = resultPts + advancePts;
       return {
         owner: o,
         teams,
         agg,
-        breakdown: { resultPts, goalPts, csPts, advancePts },
+        breakdown: { resultPts, advancePts, goals: agg.gf },
         teamStages,
         contributions, // owner's teams ranked by points earned
         mvp: contributions[0] && contributions[0].total > 0 ? contributions[0] : null,
@@ -214,19 +217,21 @@ const Engine = {
       };
     });
 
+    // rank by points, then total goals scored (÷100 tiebreaker), then goal diff
     rows.sort(
       (a, b) =>
         b.total - a.total ||
-        b.breakdown.advancePts - a.breakdown.advancePts ||
         b.agg.gf - a.agg.gf ||
+        (b.agg.gf - b.agg.ga) - (a.agg.gf - a.agg.ga) ||
         a.owner.name.localeCompare(b.owner.name)
     );
-    // dense-ish ranking with ties sharing a rank
-    let lastTotal = null, lastRank = 0;
+    // ties share a rank only when points AND goals AND goal-diff all match
+    let prev = null, lastRank = 0;
     rows.forEach((r, i) => {
-      if (r.total !== lastTotal) {
+      const gd = r.agg.gf - r.agg.ga;
+      if (!prev || prev.total !== r.total || prev.gf !== r.agg.gf || prev.gd !== gd) {
         lastRank = i + 1;
-        lastTotal = r.total;
+        prev = { total: r.total, gf: r.agg.gf, gd };
       }
       r.rank = lastRank;
     });

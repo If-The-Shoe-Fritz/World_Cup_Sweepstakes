@@ -40,29 +40,24 @@ const UI = {
     return new Intl.DateTimeFormat("en-CA", { timeZone: CONFIG.displayTZ }).format(d);
   },
 
-  // plain-English list of where an owner's points come from, e.g.
-  // [{icon,label:"2 wins",calc:"2 × 3",pts:6}, {icon,label:"5 goals",...}]
+  // plain-English list of where an owner's points come from. Points are group
+  // wins/draws + cumulative deep-run bonus; goals are a tiebreaker, not points.
   pointParts(r) {
     const S = CONFIG.scoring;
     const a = r.agg;
     const parts = [];
-    if (a.w) parts.push({ icon: "✅", label: this.plural(a.w, "win"), calc: `${a.w} × ${S.result.win}`, pts: a.w * S.result.win });
-    if (a.d) parts.push({ icon: "🤝", label: this.plural(a.d, "draw"), calc: `${a.d} × ${S.result.draw}`, pts: a.d * S.result.draw });
-    if (S.result.loss && a.l) parts.push({ icon: "❌", label: this.plural(a.l, "loss").replace("losss", "losses"), calc: `${a.l} × ${S.result.loss}`, pts: a.l * S.result.loss });
-    if (a.gf) parts.push({ icon: "⚽", label: this.plural(a.gf, "goal"), calc: `${a.gf} × ${S.goalFor}`, pts: a.gf * S.goalFor });
-    if (S.goalAgainst && a.ga) parts.push({ icon: "🥅", label: `${a.ga} conceded`, calc: `${a.ga} × ${S.goalAgainst}`, pts: a.ga * S.goalAgainst });
+    if (a.gw) parts.push({ icon: "✅", label: this.plural(a.gw, "group win"), calc: `${a.gw} × ${S.result.win}`, pts: a.gw * S.result.win });
+    if (a.gdr) parts.push({ icon: "🤝", label: this.plural(a.gdr, "group draw"), calc: `${a.gdr} × ${S.result.draw}`, pts: a.gdr * S.result.draw });
     if (r.breakdown.advancePts) parts.push({ icon: "🏆", label: "deep-run bonus", calc: "", pts: r.breakdown.advancePts });
-    if (r.breakdown.csPts) parts.push({ icon: "🧤", label: this.plural(a.cs, "clean sheet"), calc: `${a.cs} × ${S.cleanSheet}`, pts: r.breakdown.csPts });
     return parts;
   },
 
-  // one-team version, e.g. "1 win (3) + 2 goals (2) = 5"
+  // one-team version, e.g. "2 group wins (6) + deep run (+18) = 24"
   contribPlain(c) {
     const S = CONFIG.scoring;
     const p = [];
-    if (c.rec.w) p.push(`${this.plural(c.rec.w, "win")} (${c.rec.w * S.result.win})`);
-    if (c.rec.d) p.push(`${this.plural(c.rec.d, "draw")} (${c.rec.d * S.result.draw})`);
-    if (c.rec.gf) p.push(`${this.plural(c.rec.gf, "goal")} (${c.rec.gf * S.goalFor})`);
+    if (c.rec.gw) p.push(`${this.plural(c.rec.gw, "win")} (${c.rec.gw * S.result.win})`);
+    if (c.rec.gdr) p.push(`${this.plural(c.rec.gdr, "draw")} (${c.rec.gdr * S.result.draw})`);
     if (c.banked) p.push(`deep run (+${c.banked})`);
     if (!p.length) return c.rec.mp ? "0 pts so far" : "not played yet";
     return p.join(" + ") + ` = ${c.total}`;
@@ -205,13 +200,13 @@ const UI = {
     </div>`;
 
     const scoringNote = `<div class="hint">
-      <b>How points work:</b> ${CONFIG.scoring.result.win} for a win,
-      ${CONFIG.scoring.result.draw} for a draw, and
-      <b>+${CONFIG.scoring.goalFor} for every goal</b> your teams score —
-      plus bonus points the further a team goes (R32 +${CONFIG.scoring.advance.r32}
-      up to Champion +${CONFIG.scoring.champion}).
-      So 2 wins + 5 goals = ${2 * CONFIG.scoring.result.win + 5 * CONFIG.scoring.goalFor} points.
-      Tap any manager to see their exact sum.
+      <b>How points work:</b> in the group stage, ${CONFIG.scoring.result.win} for a win
+      and ${CONFIG.scoring.result.draw} for a draw. In the knockouts, a team banks a
+      <b>cumulative bonus</b> the further it goes (R32 +${CONFIG.scoring.advance.r32},
+      R16 +${CONFIG.scoring.advance.r16}, QF +${CONFIG.scoring.advance.qf},
+      SF +${CONFIG.scoring.advance.sf}, Runner-up +${CONFIG.scoring.advance.final},
+      Winner +${CONFIG.scoring.champion}). <b>Goals</b> only separate managers level on
+      points (then goal difference). Tap any manager for their exact sum.
     </div>`;
 
     return `<section class="view">
@@ -421,7 +416,8 @@ const UI = {
         <p class="bd-plain">${plain}</p>
         <div class="bd-lines">${receipt}</div>
         <div class="bd-total">Total <b>${r.total}</b></div>
-        <p class="bd-key">3 pts a win · 1 a draw · +1 every goal · plus bonuses the further a team goes (R32 +${CONFIG.scoring.advance.r32} … Champion +${CONFIG.scoring.champion})</p>
+        <p class="bd-tiebreak">🥅 ${r.agg.gf} goals scored · ${r.agg.gf - r.agg.ga >= 0 ? "+" : ""}${r.agg.gf - r.agg.ga} GD <span>— used only to separate equal points</span></p>
+        <p class="bd-key">Group games: 3 a win · 1 a draw. Knockouts: cumulative bonus the further a team goes (R32 +${CONFIG.scoring.advance.r32}, R16 +${CONFIG.scoring.advance.r16}, QF +${CONFIG.scoring.advance.qf}, SF +${CONFIG.scoring.advance.sf}, Runner-up +${CONFIG.scoring.advance.final}, Winner +${CONFIG.scoring.champion}).</p>
       </div>
 
       ${topPerformers}
@@ -719,7 +715,7 @@ const UI = {
       </div>
 
       <div class="stat-grid">
-        <div class="card"><h3>⚽ Goal tally — by manager</h3><div class="rankbars">${goalBars}</div></div>
+        <div class="card"><h3>⚽ Goals — by manager <small>(tiebreaker)</small></h3><div class="rankbars">${goalBars}</div></div>
         <div class="card"><h3>🏆 Wins — by manager</h3><div class="rankbars">${winBars}</div></div>
       </div>
 
