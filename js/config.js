@@ -30,21 +30,26 @@ const CONFIG = {
    *  the whole site (leaderboard, breakdowns, podium) recomputes instantly.
    * --------------------------------------------------------------------- */
   scoring: {
-    result: { win: 3, draw: 1, loss: 0 }, // per finished match, per team
-    goalFor: 1, // points for every goal one of your teams scores
-    goalAgainst: 0, // points (usually negative) per goal conceded; 0 = ignore
-    cleanSheet: 0, // bonus for a team keeping a clean sheet in a finished match
+    // Points come from GROUP matches only. Knockout results are rewarded purely
+    // through the progression bonuses below.
+    result: { win: 3, draw: 1, loss: 0 },
 
-    // Escalating bonuses banked the moment a team reaches each stage.
-    // They are cumulative — a finalist has banked every milestone below it.
+    // Goals are NOT points — total goals scored only break ties between owners
+    // on equal points (then goal difference). So leave these at 0.
+    goalFor: 0,
+    goalAgainst: 0,
+    cleanSheet: 0,
+
+    // Cumulative bonuses: a team banks each stage's value as it advances
+    // (e.g. reaching the QF = 4 + 6 + 8 = 18).
     advance: {
-      r32: 3, // made the Round of 32 (survived the group)
-      r16: 5, // Round of 16
+      r32: 4, // made the Round of 32 (survived the group)
+      r16: 6, // Round of 16
       qf: 8, // Quarter-final
-      sf: 13, // Semi-final
-      final: 21, // Final
+      sf: 12, // Semi-final
+      final: 18, // reached the final and lost (Runner-up)
     },
-    champion: 34, // winning the whole thing
+    champion: 22, // won the final (Winner) — replaces the runner-up value
   },
 
   /* -- Stage metadata (labels + order) ------------------------------------ */

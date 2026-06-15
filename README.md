@@ -28,24 +28,30 @@ the lads the link.
 
 ## 🧮 How the scoring works
 
-Each manager banks points from their three teams. It rewards winning, scoring
-goals, **and going deep** in the knockouts:
+Each manager banks points from their three teams.
 
-| Source | Points |
+**Group stage** (these are the only matches that score result points):
+
+| Result | Points |
 |--------|-------:|
 | Win | **3** |
 | Draw | **1** |
-| Every goal a team scores | **+1** |
-| Reach Round of 32 (survive the group) | **+3** |
-| Reach Round of 16 | **+5** |
-| Reach Quarter-final | **+8** |
-| Reach Semi-final | **+13** |
-| Reach Final | **+21** |
-| **Win the whole thing** 👑 | **+34** |
 
-Progression bonuses are **cumulative** — a finalist has already banked every
-milestone below it. Goals and W/D/L also get their own dedicated tallies on the
-Stats page.
+**Knockouts** — a team banks a **cumulative** bonus as it advances (so reaching
+the quarter-final is worth 4 + 6 + 8 = **18**):
+
+| Stage reached | Bonus |
+|--------|-------:|
+| Round of 32 | **+4** |
+| Round of 16 | **+6** |
+| Quarter-final | **+8** |
+| Semi-final | **+12** |
+| Runner-up (lost final) | **+18** |
+| **Winner** 👑 | **+22** (instead of the runner-up 18) |
+
+**Goals are not points.** Total goals scored are used **only to break ties**
+between managers level on points (then goal difference). This mirrors the
+official spreadsheet exactly.
 
 **Want different numbers?** It's all in [`js/config.js`](js/config.js) under
 `scoring` — change a value and the entire site (leaderboard, podium, breakdowns)
