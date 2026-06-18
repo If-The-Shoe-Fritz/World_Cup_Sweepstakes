@@ -403,7 +403,7 @@
   "id": 26,
   "home_id": "8",
   "away_id": "6",
-  "home_score": 3,
+  "home_score": 4,
   "away_score": 1,
   "home_scorers": null,
   "away_scorers": null,
@@ -411,8 +411,8 @@
   "matchday": "2",
   "date": "06/18/2026 12:00",
   "stadium_id": "16",
-  "finished": false,
-  "status": "90'+7'",
+  "finished": true,
+  "status": "finished",
   "type": "group"
  },
  {
