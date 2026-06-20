@@ -547,7 +547,7 @@
   "id": 35,
   "home_id": "21",
   "away_id": "23",
-  "home_score": 4,
+  "home_score": 5,
   "away_score": 1,
   "home_scorers": null,
   "away_scorers": null,
@@ -556,7 +556,7 @@
   "date": "06/20/2026 12:00",
   "stadium_id": "5",
   "finished": false,
-  "status": "65'",
+  "status": "90'+5'",
   "type": "group"
  },
  {
