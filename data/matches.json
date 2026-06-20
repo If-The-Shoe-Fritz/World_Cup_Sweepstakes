@@ -451,7 +451,7 @@
   "id": 29,
   "home_id": "9",
   "away_id": "11",
-  "home_score": 0,
+  "home_score": 3,
   "away_score": 0,
   "home_scorers": null,
   "away_scorers": null,
@@ -460,7 +460,7 @@
   "date": "06/19/2026 21:00",
   "stadium_id": "10",
   "finished": false,
-  "status": "notstarted",
+  "status": "HT",
   "type": "group"
  },
  {
