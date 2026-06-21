@@ -628,7 +628,7 @@
   "home_id": "32",
   "away_id": "30",
   "home_score": 2,
-  "away_score": 1,
+  "away_score": 2,
   "home_scorers": null,
   "away_scorers": null,
   "group": "H",
@@ -636,7 +636,7 @@
   "date": "06/21/2026 18:00",
   "stadium_id": "8",
   "finished": false,
-  "status": "HT",
+  "status": "79'",
   "type": "group"
  },
  {
