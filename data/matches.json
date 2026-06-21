@@ -564,15 +564,15 @@
   "home_id": "24",
   "away_id": "22",
   "home_score": 0,
-  "away_score": 3,
+  "away_score": 4,
   "home_scorers": null,
   "away_scorers": null,
   "group": "F",
   "matchday": "2",
   "date": "06/20/2026 22:00",
   "stadium_id": "3",
-  "finished": false,
-  "status": "74'",
+  "finished": true,
+  "status": "finished",
   "type": "group"
  },
  {
