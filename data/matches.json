@@ -844,7 +844,7 @@
   "date": "06/24/2026 12:00",
   "stadium_id": "14",
   "finished": false,
-  "status": "notstarted",
+  "status": "16'",
   "type": "group"
  },
  {
@@ -860,7 +860,7 @@
   "date": "06/24/2026 12:00",
   "stadium_id": "13",
   "finished": false,
-  "status": "notstarted",
+  "status": "16'",
   "type": "group"
  },
  {
