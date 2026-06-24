@@ -843,8 +843,8 @@
   "matchday": "3",
   "date": "06/24/2026 12:00",
   "stadium_id": "14",
-  "finished": false,
-  "status": "88'",
+  "finished": true,
+  "status": "finished",
   "type": "group"
  },
  {
@@ -859,8 +859,8 @@
   "matchday": "3",
   "date": "06/24/2026 12:00",
   "stadium_id": "13",
-  "finished": false,
-  "status": "90'+1'",
+  "finished": true,
+  "status": "finished",
   "type": "group"
  },
  {
