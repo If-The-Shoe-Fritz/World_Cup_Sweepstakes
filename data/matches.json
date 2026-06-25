@@ -940,7 +940,7 @@
   "date": "06/25/2026 18:00",
   "stadium_id": "4",
   "finished": false,
-  "status": "notstarted",
+  "status": "7'",
   "type": "group"
  },
  {
@@ -948,7 +948,7 @@
   "home_id": "24",
   "away_id": "21",
   "home_score": 0,
-  "away_score": 0,
+  "away_score": 2,
   "home_scorers": null,
   "away_scorers": null,
   "group": "F",
@@ -956,7 +956,7 @@
   "date": "06/25/2026 18:00",
   "stadium_id": "6",
   "finished": false,
-  "status": "notstarted",
+  "status": "8'",
   "type": "group"
  },
  {
