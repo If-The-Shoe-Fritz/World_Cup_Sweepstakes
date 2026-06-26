@@ -963,7 +963,7 @@
   "id": 61,
   "home_id": "34",
   "away_id": "35",
-  "home_score": 0,
+  "home_score": 1,
   "away_score": 0,
   "home_scorers": null,
   "away_scorers": null,
@@ -972,15 +972,15 @@
   "date": "06/26/2026 15:00",
   "stadium_id": "12",
   "finished": false,
-  "status": "4'",
+  "status": "45'+4'",
   "type": "group"
  },
  {
   "id": 62,
   "home_id": "36",
   "away_id": "33",
-  "home_score": 0,
-  "away_score": 0,
+  "home_score": 1,
+  "away_score": 3,
   "home_scorers": null,
   "away_scorers": null,
   "group": "I",
@@ -988,7 +988,7 @@
   "date": "06/26/2026 15:00",
   "stadium_id": "9",
   "finished": false,
-  "status": "4'",
+  "status": "45'+5'",
   "type": "group"
  },
  {
