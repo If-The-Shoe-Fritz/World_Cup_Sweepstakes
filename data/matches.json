@@ -1036,7 +1036,7 @@
   "date": "06/26/2026 19:00",
   "stadium_id": "5",
   "finished": false,
-  "status": "notstarted",
+  "status": "5'",
   "type": "group"
  },
  {
@@ -1052,7 +1052,7 @@
   "date": "06/26/2026 18:00",
   "stadium_id": "2",
   "finished": false,
-  "status": "notstarted",
+  "status": "5'",
   "type": "group"
  },
  {
