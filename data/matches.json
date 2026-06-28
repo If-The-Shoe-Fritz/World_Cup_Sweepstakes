@@ -1091,16 +1091,16 @@
   "id": 69,
   "home_id": "38",
   "away_id": "39",
-  "home_score": 2,
-  "away_score": 2,
+  "home_score": 3,
+  "away_score": 3,
   "home_scorers": null,
   "away_scorers": null,
   "group": "J",
   "matchday": "3",
   "date": "06/27/2026 21:00",
   "stadium_id": "6",
-  "finished": false,
-  "status": "82'",
+  "finished": true,
+  "status": "finished",
   "type": "group"
  },
  {
@@ -1115,8 +1115,8 @@
   "matchday": "3",
   "date": "06/27/2026 21:00",
   "stadium_id": "4",
-  "finished": false,
-  "status": "82'",
+  "finished": true,
+  "status": "finished",
   "type": "group"
  },
  {
