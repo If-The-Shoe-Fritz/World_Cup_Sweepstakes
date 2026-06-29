@@ -446,7 +446,9 @@ tr.third td { background: rgba(96, 165, 250, 0.06); }
 @media (max-width: 480px) {
   .tabs { top: 62px; }
   .day-h { top: 112px; }
-  .lb thead th.c-prog, .lb td.c-prog { display: none; }
+  /* keep the KO Bonus column on phones (it drives the standings now); drop the
+     less-important Played and Goals-Against columns to make room instead. */
+  .lb thead th.c-sec, .lb td.c-sec { display: none; }
   .stat-grid { grid-template-columns: 1fr; }
   .oh-pts { font-size: 1.8rem; }
   .pod-pts { font-size: 1.25rem; }
