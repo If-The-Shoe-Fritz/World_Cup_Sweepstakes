@@ -502,15 +502,20 @@ const UI = {
       .map((o) => `<option value="${o.id}" ${ownerFilter === o.id ? "selected" : ""}>${this.esc(o.name)}</option>`)
       .join("");
 
-    const body = Object.keys(byDay).length
-      ? Object.keys(byDay)
-          .sort()
+    // Results read best most-recent-first; everything else stays chronological
+    // (upcoming wants the soonest match at the top).
+    const desc = filter === "finished";
+    const dayKeys = Object.keys(byDay).sort();
+    if (desc) dayKeys.reverse();
+    const body = dayKeys.length
+      ? dayKeys
           .map((day) => {
-            const first = Engine.matchDate(byDay[day][0]);
+            const items = desc ? byDay[day].slice().reverse() : byDay[day];
+            const first = Engine.matchDate(items[0]);
             const label = day === "tbd" || !first ? "Date TBD" : this.fmtDayLong(first);
             return `<div class="day-group">
               <h3 class="day-h">${label} <span class="day-tz">${CONFIG.tzLabel}</span></h3>
-              <div class="match-list">${byDay[day].map((m) => this.matchCard(m)).join("")}</div>
+              <div class="match-list">${items.map((m) => this.matchCard(m)).join("")}</div>
             </div>`;
           })
           .join("")

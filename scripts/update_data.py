@@ -37,6 +37,16 @@ TOURNAMENT_END = datetime(2026, 7, 20, tzinfo=timezone.utc)
 # ESPN returns an EMPTY payload to unfamiliar User-Agents, so look like a browser.
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 
+# Each stadium's UTC offset for the Jun–Jul 2026 window (mirrors js/config.js
+# venueOffset). Lets us turn our venue-local kick-off times into true UTC so a
+# fixture can be matched to ESPN's UTC schedule even across the midnight boundary.
+VENUE_OFFSET = {
+    "1": -6, "2": -6, "3": -6,                               # Mexico (CST)
+    "4": -5, "5": -5, "6": -5,                               # US Central (CDT)
+    "7": -4, "8": -4, "9": -4, "10": -4, "11": -4, "12": -4, # US/Canada Eastern (EDT)
+    "13": -7, "14": -7, "15": -7, "16": -7,                  # Pacific (PDT)
+}
+
 # Map ESPN's stage wording onto our match `type` keys, for filling knockouts.
 KO_STAGE = {
     "round of 32": "r32",
@@ -138,8 +148,6 @@ def parse_event(ev, name_lut):
         comp = ev["competitions"][0]
         status = (ev.get("status") or comp.get("status") or {}).get("type", {})
         state = status.get("state")  # pre | in | post
-        if state == "pre":
-            return None  # not started, nothing to record
         sides = {}
         for c in comp.get("competitors", []):
             team = c.get("team", {})
@@ -161,7 +169,10 @@ def parse_event(ev, name_lut):
             sides[c.get("homeAway", "home")] = {"id": tid, "score": score, "name": nm}
         if "home" not in sides or "away" not in sides:
             return None
+        # a scheduled fixture ("pre") still tells us the matchup, even with no
+        # score yet — we use it to fill knockout slots so the bracket isn't TBD.
         finished = bool(status.get("completed")) or state == "post"
+        played = finished or state == "in"
         # try to name the knockout round (for slot-filling)
         stage = None
         for note in comp.get("notes", []) or []:
@@ -171,8 +182,10 @@ def parse_event(ev, name_lut):
                     stage = val
         return {
             "date": (ev.get("date") or "")[:10],  # YYYY-MM-DD (UTC)
+            "kickoff": ev.get("date") or "",       # full ISO instant (UTC)
             "home": sides["home"],
             "away": sides["away"],
+            "played": played,  # has it kicked off / finished?
             "finished": finished,
             "status": "finished" if finished else (status.get("shortDetail") or "live"),
             "stage": stage,
@@ -199,20 +212,26 @@ def apply_results(matches, results):
         pair = frozenset((r["home"]["id"], r["away"]["id"]))
         m = pair_index.get(pair)
         if m:
-            if set_score(m, r):
+            # only played games change anything; a scheduled fixture whose teams
+            # we already know needs no action (and writing it would churn commits)
+            if r["played"] and set_score(m, r):
                 updated += 1
         else:
             ko_pending.append(r)  # a knockout tie our skeleton hasn't filled yet
 
-    # best-effort knockout slot filling: match by stage + date order
-    ko_pending.sort(key=lambda r: r["date"])
+    # Fill open knockout slots with the real teams. Played ties go first so they
+    # claim their slot (and scores); scheduled ties then fill the rest as upcoming
+    # matchups — teams only, leaving status/score untouched so they read as TBD-now.
+    ko_pending.sort(key=lambda r: (not r["played"], r["date"]))
     for r in ko_pending:
         m = find_open_ko(matches, r)
-        if m:
-            m["home_id"] = r["home"]["id"]
-            m["away_id"] = r["away"]["id"]
-            if set_score(m, r):
-                updated += 1
+        if not m:
+            continue
+        m["home_id"] = r["home"]["id"]
+        m["away_id"] = r["away"]["id"]
+        if r["played"]:
+            set_score(m, r)
+        updated += 1  # the slot went from TBD to a real matchup
     return updated
 
 
@@ -245,10 +264,52 @@ def find_open_ko(matches, r):
     ]
     if not candidates:
         return None
-    # prefer the fixture on the same calendar day, else the earliest open one
-    same_day = [m for m in candidates if (m.get("date", "")[:10] and to_iso(m["date"]) == r["date"])]
-    pool = same_day or sorted(candidates, key=lambda m: m["id"])
-    return pool[0] if pool else None
+
+    # Pick the open slot whose kick-off is closest to ESPN's. Comparing true UTC
+    # instants (our venue-local time + VENUE_OFFSET vs ESPN's UTC) means a late
+    # evening game that rolls past midnight UTC still lands on the right slot.
+    espn = parse_utc(r.get("kickoff"))
+
+    def gap(m):
+        slot = slot_utc(m)
+        if espn is None or slot is None:
+            # fall back to whole-day distance when a timestamp won't parse
+            iso = to_iso(m.get("date", ""))
+            if not iso or not r.get("date"):
+                return 10 ** 9
+            try:
+                a = datetime.strptime(iso, "%Y-%m-%d")
+                b = datetime.strptime(r["date"], "%Y-%m-%d")
+                return abs((a - b).days) * 86400
+            except Exception:
+                return 10 ** 9
+        return abs((slot - espn).total_seconds())
+
+    candidates.sort(key=lambda m: (gap(m), m["id"]))
+    return candidates[0]
+
+
+def parse_utc(iso):
+    """ESPN ISO instant ('2026-06-30T00:00Z') -> aware UTC datetime, or None."""
+    if not iso:
+        return None
+    try:
+        return datetime.fromisoformat(iso.replace("Z", "+00:00")).astimezone(timezone.utc)
+    except Exception:
+        return None
+
+
+def slot_utc(m):
+    """Our 'MM/DD/YYYY HH:MM' venue-local kick-off -> aware UTC datetime, or None."""
+    try:
+        d, t = (m.get("date", "") + " 00:00").split()[:2]
+        mo, da, yr = (int(x) for x in d.split("/"))
+        h, mi = (int(x) for x in t.split(":"))
+        off = VENUE_OFFSET.get(str(m.get("stadium_id")), 0)
+        # local = UTC + off  ->  UTC = local - off
+        return datetime(yr, mo, da, h, mi, tzinfo=timezone.utc) - timedelta(hours=off)
+    except Exception:
+        return None
 
 
 def to_iso(local_date):
