@@ -204,8 +204,9 @@ const UI = {
       and ${CONFIG.scoring.result.draw} for a draw. In the knockouts, a team banks a
       <b>cumulative bonus</b> the further it goes (R32 +${CONFIG.scoring.advance.r32},
       R16 +${CONFIG.scoring.advance.r16}, QF +${CONFIG.scoring.advance.qf},
-      SF +${CONFIG.scoring.advance.sf}, Runner-up +${CONFIG.scoring.advance.final},
-      Winner +${CONFIG.scoring.champion}). <b>Goals</b> only separate managers level on
+      SF +${CONFIG.scoring.advance.sf}, 3rd place +${CONFIG.scoring.thirdPlace},
+      Runner-up +${CONFIG.scoring.advance.final}, Winner +${CONFIG.scoring.champion}).
+      <b>Goals</b> only separate managers level on
       points (then goal difference). Tap any manager for their exact sum.
     </div>`;
 
@@ -417,7 +418,7 @@ const UI = {
         <div class="bd-lines">${receipt}</div>
         <div class="bd-total">Total <b>${r.total}</b></div>
         <p class="bd-tiebreak">🥅 ${r.agg.gf} goals scored · ${r.agg.gf - r.agg.ga >= 0 ? "+" : ""}${r.agg.gf - r.agg.ga} GD <span>— used only to separate equal points</span></p>
-        <p class="bd-key">Group games: 3 a win · 1 a draw. Knockouts: cumulative bonus the further a team goes (R32 +${CONFIG.scoring.advance.r32}, R16 +${CONFIG.scoring.advance.r16}, QF +${CONFIG.scoring.advance.qf}, SF +${CONFIG.scoring.advance.sf}, Runner-up +${CONFIG.scoring.advance.final}, Winner +${CONFIG.scoring.champion}).</p>
+        <p class="bd-key">Group games: 3 a win · 1 a draw. Knockouts: cumulative bonus the further a team goes (R32 +${CONFIG.scoring.advance.r32}, R16 +${CONFIG.scoring.advance.r16}, QF +${CONFIG.scoring.advance.qf}, SF +${CONFIG.scoring.advance.sf}, 3rd place +${CONFIG.scoring.thirdPlace}, Runner-up +${CONFIG.scoring.advance.final}, Winner +${CONFIG.scoring.champion}).</p>
       </div>
 
       ${topPerformers}

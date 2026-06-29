@@ -46,8 +46,11 @@ the quarter-final is worth 4 + 6 + 8 = **18**):
 | Round of 16 | **+6** |
 | Quarter-final | **+8** |
 | Semi-final | **+12** |
+| 3rd place (won the play-off) | **+15** |
 | Runner-up (lost final) | **+18** |
 | **Winner** 👑 | **+22** (instead of the runner-up 18) |
+
+So the final four bank, on top of their semi-final run (30): **Winner 52 · Runner-up 48 · 3rd 45 · 4th 30**.
 
 **Goals are not points.** Total goals scored are used **only to break ties**
 between managers level on points (then goal difference). This mirrors the
