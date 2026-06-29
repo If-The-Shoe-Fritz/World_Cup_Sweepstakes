@@ -50,6 +50,7 @@ const CONFIG = {
       final: 18, // reached the final and lost (Runner-up)
     },
     champion: 22, // won the final (Winner) — replaces the runner-up value
+    thirdPlace: 15, // won the third-place play-off — banked on top of the SF run
   },
 
   /* -- Stage metadata (labels + order) ------------------------------------ */

@@ -157,6 +157,9 @@ const Engine = {
       else if (final.home_pens != null && final.away_pens != null)
         championId = final.home_pens > final.away_pens ? final.home_id : final.away_id;
     }
+    // third place = winner of the third-place play-off
+    const thirdMatch = Data.matches.find((m) => m.type === "third");
+    const thirdId = thirdMatch ? this.winnerId(thirdMatch) : null;
     const deepest = {};
     Data.teams.forEach((t) => {
       let best = "group";
@@ -165,7 +168,7 @@ const Engine = {
       });
       deepest[t.id] = best;
     });
-    return { reached, deepest, championId };
+    return { reached, deepest, championId, thirdId };
   },
 
   /* -- the whole leaderboard ---------------------------------------------- */
@@ -201,6 +204,8 @@ const Engine = {
           if (s === "final") banked += prog.championId === id ? S.champion : (S.advance.final || 0);
           else banked += S.advance[s] || 0;
         });
+        // winning the third-place play-off banks an extra placement bonus
+        if (prog.thirdId === id) banked += S.thirdPlace || 0;
         advancePts += banked;
         teamStages[id] = { deepest: prog.deepest[id], banked };
 
