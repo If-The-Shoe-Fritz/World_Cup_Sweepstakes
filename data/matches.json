@@ -1232,9 +1232,10 @@
   "matchday": "4",
   "date": "06/29/2026 16:30",
   "stadium_id": "9",
-  "finished": false,
-  "status": "115'",
-  "type": "r32"
+  "finished": true,
+  "status": "finished",
+  "type": "r32",
+  "winner_id": "14"
  },
  {
   "id": 75,
