@@ -149,6 +149,7 @@ def parse_event(ev, name_lut):
         status = (ev.get("status") or comp.get("status") or {}).get("type", {})
         state = status.get("state")  # pre | in | post
         sides = {}
+        winner = None  # team id ESPN marks as advancing (covers penalty wins)
         for c in comp.get("competitors", []):
             team = c.get("team", {})
             nm = team.get("displayName") or team.get("name") or "?"
@@ -166,6 +167,8 @@ def parse_event(ev, name_lut):
                 score = int(score)
             except (TypeError, ValueError):
                 score = 0
+            if c.get("winner") is True:
+                winner = tid
             sides[c.get("homeAway", "home")] = {"id": tid, "score": score, "name": nm}
         if "home" not in sides or "away" not in sides:
             return None
@@ -189,6 +192,7 @@ def parse_event(ev, name_lut):
             "finished": finished,
             "status": "finished" if finished else (status.get("shortDetail") or "live"),
             "stage": stage,
+            "winner": winner,  # advancing team id, or None
         }
     except Exception:
         return None
@@ -242,16 +246,20 @@ def set_score(m, r):
     mapping = {r["home"]["id"]: hs, r["away"]["id"]: as_}
     new_home = mapping.get(m["home_id"], hs)
     new_away = mapping.get(m["away_id"], as_)
+    new_winner = r.get("winner")
     changed = (
         m.get("home_score") != new_home
         or m.get("away_score") != new_away
         or m.get("finished") != r["finished"]
         or m.get("status") != r["status"]
+        or (new_winner and m.get("winner_id") != new_winner)
     )
     m["home_score"] = new_home
     m["away_score"] = new_away
     m["finished"] = r["finished"]
     m["status"] = r["status"]
+    if new_winner:
+        m["winner_id"] = new_winner  # who advanced (resolves penalty ties too)
     return changed
 
 

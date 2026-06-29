@@ -173,8 +173,8 @@ const UI = {
       <table class="lb">
         <thead><tr>
           <th class="c-rank">#</th><th class="c-owner">Manager</th>
-          <th>P</th><th>W</th><th>D</th><th>L</th>
-          <th>GF</th><th>GA</th><th class="c-prog">Bonus</th>
+          <th class="c-sec">P</th><th>W</th><th>D</th><th>L</th>
+          <th>GF</th><th class="c-sec">GA</th><th class="c-prog">Bonus</th>
           <th class="c-total">Pts</th>
         </tr></thead>
         <tbody>${rows
@@ -189,8 +189,8 @@ const UI = {
                 <span class="lb-name">${this.esc(r.owner.name)}${r.champion ? " 👑" : ""}</span>
                 <span class="lb-flags">${teams}</span>
               </td>
-              <td>${r.agg.mp}</td><td>${r.agg.w}</td><td>${r.agg.d}</td><td>${r.agg.l}</td>
-              <td class="pos">${r.agg.gf}</td><td>${r.agg.ga}</td>
+              <td class="c-sec">${r.agg.mp}</td><td>${r.agg.w}</td><td>${r.agg.d}</td><td>${r.agg.l}</td>
+              <td class="pos">${r.agg.gf}</td><td class="c-sec">${r.agg.ga}</td>
               <td class="c-prog">${r.breakdown.advancePts ? "+" + r.breakdown.advancePts : "—"}</td>
               <td class="c-total"><b>${r.total}</b></td>
             </tr>`;

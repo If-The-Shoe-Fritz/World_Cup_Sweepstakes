@@ -16,6 +16,17 @@ const Engine = {
   hasTeams(m) {
     return m.home_id && m.away_id && m.home_id !== "0" && m.away_id !== "0";
   },
+  // who advanced from a finished knockout tie (null if undecided / not played).
+  // Prefers the feed's explicit winner flag, then the score, then penalties.
+  winnerId(m) {
+    if (!this.isPlayed(m) || !this.hasTeams(m)) return null;
+    if (m.winner_id && m.winner_id !== "0") return m.winner_id;
+    if (m.home_score > m.away_score) return m.home_id;
+    if (m.away_score > m.home_score) return m.away_id;
+    if (m.home_pens != null && m.away_pens != null && m.home_pens !== m.away_pens)
+      return m.home_pens > m.away_pens ? m.home_id : m.away_id;
+    return null; // level with no shootout data yet — can't tell
+  },
   matchDate(m) {
     // "MM/DD/YYYY HH:MM" is the VENUE's local wall time. Turn it into a true
     // UTC instant using that venue's offset, so it can be shown in any timezone.
@@ -127,6 +138,15 @@ const Engine = {
       [m.home_id, m.away_id].forEach((id) => {
         if (id && id !== "0" && reached[id]) reached[id].add(m.type);
       });
+    });
+    // Winning a knockout tie means you've REACHED the next round — credit that
+    // stage straight away, even before the next fixture is drawn/populated.
+    const NEXT = { r32: "r16", r16: "qf", qf: "sf", sf: "final" };
+    Data.matches.forEach((m) => {
+      const nxt = NEXT[m.type];
+      if (!nxt) return;
+      const w = this.winnerId(m);
+      if (w && reached[w]) reached[w].add(nxt);
     });
     // champion = winner of the finished final
     let championId = null;
