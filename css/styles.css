@@ -162,10 +162,12 @@ small { font-size: 0.72em; color: var(--muted); font-weight: 600; }
 .mteam.home .chip { align-self: flex-start; max-width: 100%; }
 .mteam-main { display: flex; min-width: 0; }
 .mteam.win .tname { color: var(--gold); }
-.mscore { font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; gap: 5px; }
-.mscore span { color: var(--muted2); font-weight: 600; }
+.mscore { font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; display: inline-flex; flex-direction: column; align-items: center; gap: 1px; }
+.msc-line { display: inline-flex; align-items: center; gap: 5px; }
+.msc-line > span { color: var(--muted2); font-weight: 600; }
 .mscore b { font-weight: 800; color: var(--muted); }
 .mscore b.sc-win { color: var(--gold); }
+.mpens { font-size: 0.58rem; font-weight: 700; color: var(--gold); letter-spacing: .02em; white-space: nowrap; text-transform: uppercase; }
 .day-tz { font-size: 0.62rem; color: var(--muted2); font-weight: 700; }
 .mscore.live { color: var(--red); }
 .mvs { color: var(--muted2); font-weight: 700; font-size: 0.85rem; }

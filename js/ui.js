@@ -114,18 +114,29 @@ const UI = {
     const played = Engine.isPlayed(m);
     const live = Engine.isLive(m);
     const stad = Data.stadium(m.stadium_id);
-    const hWin = played && m.home_score > m.away_score;
-    const aWin = played && m.away_score > m.home_score;
+    // who advanced — handles knockout ties settled on penalties, not just score
+    const wid = played ? Engine.winnerId(m) : null;
+    const decisive = played && m.home_score !== m.away_score; // settled in normal/extra time
+    const hWin = wid != null && wid === m.home_id;
+    const aWin = wid != null && wid === m.away_id;
+    const shootout = played && !decisive && wid != null; // level, but a team won on pens
+    const winTeam = wid != null ? Data.team(wid) : null;
+    const pensText = shootout
+      ? (m.home_pens != null && m.away_pens != null
+          ? `pens ${m.home_pens}–${m.away_pens}`
+          : `${winTeam ? (winTeam.code || winTeam.name) : ""} won on pens`)
+      : "";
     const score = played || live
-      ? `<span class="mscore ${live ? "live" : ""}"><b class="${hWin ? "sc-win" : ""}">${m.home_score ?? 0}</b><span>–</span><b class="${aWin ? "sc-win" : ""}">${m.away_score ?? 0}</b></span>`
+      ? `<span class="mscore ${live ? "live" : ""}">
+          <span class="msc-line"><b class="${hWin && decisive ? "sc-win" : ""}">${m.home_score ?? 0}</b><span>–</span><b class="${aWin && decisive ? "sc-win" : ""}">${m.away_score ?? 0}</b></span>
+          ${shootout ? `<span class="mpens">${this.esc(pensText)}</span>` : ""}
+        </span>`
       : `<span class="mvs">vs</span>`;
     const groupTag = m.type === "group"
       ? `Group ${this.esc(m.group)} · MD${this.esc(m.matchday)}`
       : this.stageLabel(m.type);
     const win = (side) =>
-      played && ((side === "h" && m.home_score > m.away_score) ||
-                 (side === "a" && m.away_score > m.home_score))
-        ? "win" : "";
+      (side === "h" && hWin) || (side === "a" && aWin) ? "win" : "";
     return `<div class="match ${live ? "is-live" : ""} ${played ? "is-ft" : ""}">
       <div class="match-top">
         <span class="mtag">${groupTag}</span>
@@ -563,6 +574,13 @@ const UI = {
       const played = Engine.isPlayed(m);
       const live = Engine.isLive(m);
       const sc = played || live ? `${m.home_score ?? 0}–${m.away_score ?? 0}` : this.statusTag(m);
+      // note the shootout result on knockout ties settled on penalties
+      const wid = played ? Engine.winnerId(m) : null;
+      const pensNote = wid != null && m.home_score === m.away_score
+        ? (m.home_pens != null && m.away_pens != null
+            ? ` · pens ${m.home_pens}–${m.away_pens}`
+            : ` · ${(Data.team(wid) && (Data.team(wid).code || Data.team(wid).name)) || "won"} on pens`)
+        : "";
       return `<div class="duel ${internal ? "internal" : ""} ${live ? "is-live" : ""}">
         <div class="duel-side">
           ${this.ownerChip(ho)}
@@ -570,7 +588,7 @@ const UI = {
         </div>
         <div class="duel-mid">
           <span class="duel-score">${sc}</span>
-          <span class="duel-stage">${this.stageLabel(m.type)}${internal ? " · internal" : ""}</span>
+          <span class="duel-stage">${this.stageLabel(m.type)}${pensNote}${internal ? " · internal" : ""}</span>
         </div>
         <div class="duel-side right">
           ${this.ownerChip(ao)}

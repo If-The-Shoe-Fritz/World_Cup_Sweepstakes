@@ -167,9 +167,14 @@ def parse_event(ev, name_lut):
                 score = int(score)
             except (TypeError, ValueError):
                 score = 0
+            pens = c.get("shootoutScore")  # penalty-shootout tally, if any
+            try:
+                pens = int(pens)
+            except (TypeError, ValueError):
+                pens = None
             if c.get("winner") is True:
                 winner = tid
-            sides[c.get("homeAway", "home")] = {"id": tid, "score": score, "name": nm}
+            sides[c.get("homeAway", "home")] = {"id": tid, "score": score, "name": nm, "pens": pens}
         if "home" not in sides or "away" not in sides:
             return None
         # a scheduled fixture ("pre") still tells us the matchup, even with no
@@ -260,6 +265,14 @@ def set_score(m, r):
     m["status"] = r["status"]
     if new_winner:
         m["winner_id"] = new_winner  # who advanced (resolves penalty ties too)
+    # penalty-shootout scores, oriented onto our stored home/away slots
+    pmap = {r["home"]["id"]: r["home"].get("pens"), r["away"]["id"]: r["away"].get("pens")}
+    new_hp, new_ap = pmap.get(m["home_id"]), pmap.get(m["away_id"])
+    if new_hp is not None and new_ap is not None:
+        if m.get("home_pens") != new_hp or m.get("away_pens") != new_ap:
+            changed = True
+        m["home_pens"] = new_hp
+        m["away_pens"] = new_ap
     return changed
 
 
