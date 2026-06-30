@@ -1279,7 +1279,7 @@
   "id": 77,
   "home_id": "33",
   "away_id": "23",
-  "home_score": 0,
+  "home_score": 1,
   "away_score": 0,
   "home_scorers": null,
   "away_scorers": null,
@@ -1288,7 +1288,7 @@
   "date": "06/30/2026 17:00",
   "stadium_id": "11",
   "finished": false,
-  "status": "6'",
+  "status": "45'+1'",
   "type": "r32"
  },
  {
