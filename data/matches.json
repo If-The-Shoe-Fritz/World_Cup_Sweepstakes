@@ -1241,8 +1241,8 @@
   "id": 75,
   "home_id": "21",
   "away_id": "10",
-  "home_score": 0,
-  "away_score": 0,
+  "home_score": 1,
+  "away_score": 1,
   "home_scorers": null,
   "away_scorers": null,
   "group": "R32",
@@ -1250,7 +1250,7 @@
   "date": "06/29/2026 19:00",
   "stadium_id": "3",
   "finished": false,
-  "status": "54'",
+  "status": "AET-pens",
   "type": "r32"
  },
  {
