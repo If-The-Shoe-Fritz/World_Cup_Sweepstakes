@@ -1249,9 +1249,10 @@
   "matchday": "4",
   "date": "06/29/2026 19:00",
   "stadium_id": "3",
-  "finished": false,
-  "status": "AET-pens",
-  "type": "r32"
+  "finished": true,
+  "status": "finished",
+  "type": "r32",
+  "winner_id": "10"
  },
  {
   "id": 76,
@@ -1480,8 +1481,8 @@
  },
  {
   "id": 90,
-  "home_id": "0",
-  "away_id": "0",
+  "home_id": "5",
+  "away_id": "10",
   "home_score": 0,
   "away_score": 0,
   "home_scorers": null,
