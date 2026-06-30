@@ -475,7 +475,9 @@ const UI = {
    *  VIEW: Fixtures
    * =================================================================== */
   fixtures(params) {
-    const filter = params.f || "all";
+    // default to Results (latest first) — the tab is mostly used to catch up on
+    // what was played; the other filters stay one tap away.
+    const filter = params.f || "finished";
     let list = Data.matches.slice().sort((a, b) => {
       const da = Engine.matchDate(a), db = Engine.matchDate(b);
       return (da && db ? da - db : 0) || a.id - b.id;
@@ -501,8 +503,8 @@ const UI = {
     });
 
     const filters = [
-      ["all", "All"], ["live", "Live"], ["upcoming", "Upcoming"],
-      ["finished", "Results"], ["ko", "Knockouts"],
+      ["finished", "Results"], ["live", "Live"], ["upcoming", "Upcoming"],
+      ["ko", "Knockouts"], ["all", "All"],
     ]
       .map(
         ([k, lbl]) =>
