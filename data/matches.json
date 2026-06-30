@@ -1303,9 +1303,10 @@
   "matchday": "4",
   "date": "06/30/2026 12:00",
   "stadium_id": "4",
-  "finished": false,
-  "status": "90'+3'",
-  "type": "r32"
+  "finished": true,
+  "status": "finished",
+  "type": "r32",
+  "winner_id": "36"
  },
  {
   "id": 79,
@@ -1501,8 +1502,8 @@
  },
  {
   "id": 91,
-  "home_id": "0",
-  "away_id": "0",
+  "home_id": "9",
+  "away_id": "36",
   "home_score": 0,
   "away_score": 0,
   "home_scorers": null,
