@@ -1235,7 +1235,9 @@
   "finished": true,
   "status": "finished",
   "type": "r32",
-  "winner_id": "14"
+  "winner_id": "14",
+  "home_pens": 3,
+  "away_pens": 4
  },
  {
   "id": 75,
@@ -1252,7 +1254,9 @@
   "finished": true,
   "status": "finished",
   "type": "r32",
-  "winner_id": "10"
+  "winner_id": "10",
+  "home_pens": 2,
+  "away_pens": 3
  },
  {
   "id": 76,
