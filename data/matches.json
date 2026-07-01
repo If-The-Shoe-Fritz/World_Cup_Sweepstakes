@@ -1330,7 +1330,7 @@
   "id": 80,
   "home_id": "45",
   "away_id": "42",
-  "home_score": 0,
+  "home_score": 2,
   "away_score": 1,
   "home_scorers": null,
   "away_scorers": null,
@@ -1338,9 +1338,10 @@
   "matchday": "4",
   "date": "07/01/2026 12:00",
   "stadium_id": "7",
-  "finished": false,
-  "status": "62'",
-  "type": "r32"
+  "finished": true,
+  "status": "finished",
+  "type": "r32",
+  "winner_id": "45"
  },
  {
   "id": 81,
@@ -1520,8 +1521,8 @@
  },
  {
   "id": 92,
-  "home_id": "0",
-  "away_id": "0",
+  "home_id": "1",
+  "away_id": "45",
   "home_score": 0,
   "away_score": 0,
   "home_scorers": null,
