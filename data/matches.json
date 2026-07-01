@@ -1364,7 +1364,7 @@
   "home_id": "25",
   "away_id": "34",
   "home_score": 0,
-  "away_score": 1,
+  "away_score": 2,
   "home_scorers": null,
   "away_scorers": null,
   "group": "R32",
@@ -1372,7 +1372,7 @@
   "date": "07/01/2026 13:00",
   "stadium_id": "14",
   "finished": false,
-  "status": "HT",
+  "status": "83'",
   "type": "r32"
  },
  {
