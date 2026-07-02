@@ -1397,7 +1397,7 @@
   "id": 84,
   "home_id": "29",
   "away_id": "39",
-  "home_score": 0,
+  "home_score": 1,
   "away_score": 0,
   "home_scorers": null,
   "away_scorers": null,
@@ -1406,7 +1406,7 @@
   "date": "07/02/2026 12:00",
   "stadium_id": "16",
   "finished": false,
-  "status": "notstarted",
+  "status": "45'+3'",
   "type": "r32"
  },
  {
