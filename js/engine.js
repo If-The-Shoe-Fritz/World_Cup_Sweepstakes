@@ -263,6 +263,39 @@ const Engine = {
     return rows;
   },
 
+  /* -- standings replayed at the end of every game day (for the race chart) -
+   * Recomputes the whole leaderboard "as of" each day a match was played, so we
+   * can chart how every manager's position and points moved over the tournament.
+   * The final checkpoint uses the full current data so the chart ends exactly on
+   * the live leaderboard. */
+  rankHistory() {
+    const fmt = new Intl.DateTimeFormat("en-CA", { timeZone: CONFIG.displayTZ });
+    const saved = Data.matches;
+    const dated = saved
+      .filter((m) => this.hasTeams(m) && this.matchDate(m))
+      .map((m) => ({ m, day: fmt.format(this.matchDate(m)), played: this.isPlayed(m) }));
+    // one checkpoint per distinct day on which a match was actually played
+    const days = [...new Set(dated.filter((x) => x.played).map((x) => x.day))].sort();
+    const byOwner = {};
+    Data.owners.forEach((o) => (byOwner[o.id] = { id: o.id, name: o.name, pos: [], pts: [] }));
+    try {
+      days.forEach((ck, i) => {
+        // matches known by end of day `ck` (played + already-drawn fixtures);
+        // the last checkpoint uses everything so it matches the live table.
+        Data.matches = i === days.length - 1
+          ? saved
+          : dated.filter((x) => x.day <= ck).map((x) => x.m);
+        this.leaderboard().forEach((r, idx) => {
+          byOwner[r.owner.id].pos.push(idx + 1); // strict 1..N order (unique)
+          byOwner[r.owner.id].pts.push(r.total);
+        });
+      });
+    } finally {
+      Data.matches = saved; // always restore, even if a checkpoint throws
+    }
+    return { days, owners: Object.values(byOwner) };
+  },
+
   /* -- every match reframed as an owner-vs-owner clash -------------------- */
   clashes() {
     return Data.matches
