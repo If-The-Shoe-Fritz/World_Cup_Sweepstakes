@@ -1472,9 +1472,12 @@
   "matchday": "4",
   "date": "07/03/2026 13:00",
   "stadium_id": "4",
-  "finished": false,
-  "status": "ET-HT",
-  "type": "r32"
+  "finished": true,
+  "status": "finished",
+  "type": "r32",
+  "winner_id": "26",
+  "home_pens": 2,
+  "away_pens": 4
  },
  {
   "id": 89,
