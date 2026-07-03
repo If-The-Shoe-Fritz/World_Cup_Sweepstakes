@@ -5,6 +5,7 @@
 const App = {
   routes: {
     leaderboard: () => UI.leaderboard(),
+    race: (p, q) => UI.race(q),
     owners: () => UI.owners(),
     owner: (p) => UI.owner(p[0]),
     fixtures: (p, q) => UI.fixtures(q),
@@ -15,6 +16,7 @@ const App = {
 
   nav: [
     ["leaderboard", "🏆 Table"],
+    ["race", "📈 Race"],
     ["owners", "👥 Managers"],
     ["fixtures", "📅 Fixtures"],
     ["clashes", "⚔️ Clashes"],

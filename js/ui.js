@@ -756,5 +756,171 @@ const UI = {
     </section>`;
   },
 
-  /* -- owner-filter helper for fixtures select ---------------------------- */
+  /* ======================================================================
+   *  VIEW: The Race — rank / points across every game day
+   * =================================================================== */
+  ordinal(n) {
+    const s = ["th", "st", "nd", "rd"], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  },
+
+  race(params) {
+    const H = Engine.rankHistory();
+    const D = H.days.length, n = H.owners.length;
+    if (D < 2) {
+      return `<section class="view"><div class="view-head"><h1>📈 The Race</h1></div>
+        <div class="hint">The race chart appears once a couple of game days have been played.</div></section>`;
+    }
+    const view = params && params.v === "pts" ? "pts" : "rank";
+
+    // geometry
+    const rowH = 24, topPad = 24, botPad = 40, leftPad = 30, rightPad = 140;
+    const stepX = Math.max(44, Math.min(66, Math.round(780 / (D - 1))));
+    const plotH = (n - 1) * rowH, plotW = (D - 1) * stepX;
+    const W = leftPad + plotW + rightPad, Ht = topPad + plotH + botPad;
+    const maxPts = Math.max(1, ...H.owners.flatMap((o) => o.pts));
+    const x = (i) => leftPad + i * stepX;
+    const yRank = (pos) => topPad + (pos - 1) * rowH;
+    const yPts = (p) => topPad + (1 - p / maxPts) * plotH;
+    const yOf = (o, i) => (view === "rank" ? yRank(o.pos[i]) : yPts(o.pts[i]));
+
+    const lbl = (k) => {
+      const [y, mo, da] = k.split("-").map(Number);
+      return new Date(Date.UTC(y, mo - 1, da, 12)).toLocaleDateString("en-AU", { day: "numeric", month: "short" });
+    };
+    const labels = H.days.map(lbl);
+
+    // cache for the hover/tap handlers
+    this._race = {
+      view, labels, W,
+      owners: H.owners.map((o) => ({
+        id: o.id, name: o.name, pos: o.pos, pts: o.pts,
+        coords: o.pos.map((_, i) => ({ x: x(i), y: yOf(o, i) })),
+      })),
+      byId: {},
+    };
+    this._race.owners.forEach((o) => (this._race.byId[o.id] = o));
+
+    // grid + axes
+    let grid = "";
+    const xstep = Math.ceil(D / 8);
+    for (let i = 0; i < D; i++) {
+      grid += `<line class="rg-v" x1="${x(i)}" y1="${topPad}" x2="${x(i)}" y2="${topPad + plotH}"/>`;
+      if (i % xstep === 0 || i === D - 1)
+        grid += `<text class="rg-xl" x="${x(i)}" y="${topPad + plotH + 16}">${this.esc(labels[i])}</text>`;
+    }
+    if (view === "rank") {
+      for (let p = 1; p <= n; p++) {
+        grid += `<line class="rg-h" x1="${leftPad}" y1="${yRank(p)}" x2="${leftPad + plotW}" y2="${yRank(p)}"/>`;
+        if (p === 1 || p % 4 === 0) grid += `<text class="rg-yl" x="${leftPad - 8}" y="${yRank(p) + 3}">${p}</text>`;
+      }
+    } else {
+      for (let t = 0; t <= 5; t++) {
+        const val = Math.round((maxPts * t) / 5), gy = yPts(val);
+        grid += `<line class="rg-h" x1="${leftPad}" y1="${gy}" x2="${leftPad + plotW}" y2="${gy}"/>`;
+        grid += `<text class="rg-yl" x="${leftPad - 8}" y="${gy + 3}">${val}</text>`;
+      }
+    }
+
+    // declutter the right-edge labels: keep target order, enforce a min gap so
+    // clustered finishes (common in the points view) don't overprint each other
+    const LG = 15;
+    const spread = this._race.owners
+      .map((o) => ({ id: o.id, y: o.coords[D - 1].y }))
+      .sort((a, b) => a.y - b.y);
+    let prevY = -Infinity;
+    spread.forEach((it) => { it.ly = Math.max(it.y, prevY + LG); prevY = it.ly; });
+    const over = spread.length ? spread[spread.length - 1].ly - (topPad + plotH) : 0;
+    if (over > 0) spread.forEach((it) => (it.ly = Math.max(topPad, it.ly - over)));
+    const labelY = {};
+    spread.forEach((it) => (labelY[it.id] = it.ly));
+
+    // one <g> per manager: fat invisible hit line, the visible line, dots, right label
+    const groups = this._race.owners.map((o) => {
+      const color = this.color(o.id);
+      const poly = o.coords.map((c) => `${c.x},${c.y}`).join(" ");
+      const marks = o.coords.map((c, i) =>
+        `<circle class="rdot" cx="${c.x}" cy="${c.y}" r="3.5" style="fill:${color}"/>` +
+        `<circle class="rdhit" cx="${c.x}" cy="${c.y}" r="10" onmouseenter="UI.raceTip(event,'${o.id}',${i})" onclick="UI.raceTip(event,'${o.id}',${i})"/>`
+      ).join("");
+      const end = o.coords[D - 1], ly = labelY[o.id];
+      const leader = Math.abs(ly - end.y) > 2
+        ? `<line class="rlead" x1="${end.x}" y1="${end.y}" x2="${end.x + 8}" y2="${ly}" style="stroke:${color}"/>` : "";
+      return `<g class="rgroup" data-o="${o.id}" onmouseenter="UI.raceFocus('${o.id}')" onmouseleave="UI.raceBlur()">
+        <polyline class="rhit" points="${poly}"/>
+        <polyline class="rline" points="${poly}" style="stroke:${color}"/>
+        ${marks}${leader}
+        <text class="rlabel" x="${end.x + 10}" y="${ly}" style="fill:${color}"><tspan class="rlabel-pos">${o.pos[D - 1]}</tspan> ${this.esc(o.name)}</text>
+      </g>`;
+    }).join("");
+
+    return `<section class="view">
+      <div class="view-head"><h1>📈 The Race</h1></div>
+      <div class="hint">How every manager's ${view === "rank" ? "position" : "points total"} moved across ${D} game days. Trace your colour — or <b>tap any point</b> to see the rank, points and who you overtook that day.</div>
+      <div class="race-toggle">
+        <a class="rtbtn ${view === "rank" ? "on" : ""}" href="#/race?v=rank">Rank</a>
+        <a class="rtbtn ${view === "pts" ? "on" : ""}" href="#/race?v=pts">Points</a>
+      </div>
+      <div class="card race-card">
+        <div class="race-wrap" id="raceWrap">
+          <svg class="race-chart" data-view="${view}" width="${W}" height="${Ht}" viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Each manager's ${view === "rank" ? "rank" : "points"} over ${D} game days">
+            <g class="race-grid">${grid}</g>
+            ${groups}
+          </svg>
+          <div class="race-tip" id="raceTip"></div>
+        </div>
+      </div>
+      <p class="race-foot">Each line is a manager, coloured to match their identity across the app. ${view === "rank" ? "Top = 1st place." : "Higher = more points."} Latest game day is on the right; scroll sideways to see the group stage.</p>
+    </section>`;
+  },
+
+  raceFocus(oid) {
+    const svg = document.querySelector(".race-chart");
+    if (!svg) return;
+    svg.classList.add("focused");
+    svg.querySelectorAll(".rgroup").forEach((g) => {
+      const on = g.dataset.o === oid;
+      g.classList.toggle("hot", on);
+      if (on) g.parentNode.appendChild(g); // bring the focused line to the front
+    });
+  },
+  raceBlur() {
+    const svg = document.querySelector(".race-chart");
+    if (svg) {
+      svg.classList.remove("focused");
+      svg.querySelectorAll(".rgroup").forEach((g) => g.classList.remove("hot"));
+    }
+    const tip = document.getElementById("raceTip");
+    if (tip) tip.classList.remove("show");
+  },
+  raceTip(evt, oid, i) {
+    if (evt && evt.stopPropagation) evt.stopPropagation();
+    const R = this._race;
+    if (!R) return;
+    const o = R.byId[oid];
+    if (!o) return;
+    this.raceFocus(oid);
+    const wrap = document.getElementById("raceWrap"), tip = document.getElementById("raceTip");
+    if (!wrap || !tip) return;
+    const pos = o.pos[i], pts = o.pts[i];
+    let move = "";
+    if (i > 0) {
+      const d = o.pos[i - 1] - pos;
+      move = d > 0 ? `<span class="rt-up">▲ ${d}</span>` : d < 0 ? `<span class="rt-dn">▼ ${-d}</span>` : `<span class="rt-flat">– held</span>`;
+    }
+    const beat = [];
+    if (i > 0) R.owners.forEach((z) => {
+      if (z.id !== oid && pos < z.pos[i] && o.pos[i - 1] > z.pos[i - 1]) beat.push(z.name);
+    });
+    tip.innerHTML =
+      `<div class="rt-head"><span class="rt-dot" style="background:${this.color(oid)}"></span>${this.esc(o.name)}</div>` +
+      `<div class="rt-day">${this.esc(R.labels[i])}</div>` +
+      `<div class="rt-line"><span>Rank</span><b>${this.ordinal(pos)}</b> ${move}</div>` +
+      `<div class="rt-line"><span>Points</span><b>${pts}</b></div>` +
+      (beat.length ? `<div class="rt-beat">▲ passed ${beat.slice(0, 3).map((b) => this.esc(b)).join(", ")}${beat.length > 3 ? ` +${beat.length - 3} more` : ""}</div>` : "");
+    const c = o.coords[i];
+    tip.style.left = Math.max(72, Math.min(c.x, R.W - 72)) + "px";
+    tip.style.top = (c.y - 13) + "px";
+    tip.classList.add("show");
+  },
 };
