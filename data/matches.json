@@ -1423,9 +1423,10 @@
   "matchday": "4",
   "date": "07/02/2026 20:00",
   "stadium_id": "13",
-  "finished": false,
-  "status": "54'",
-  "type": "r32"
+  "finished": true,
+  "status": "finished",
+  "type": "r32",
+  "winner_id": "8"
  },
  {
   "id": 86,
