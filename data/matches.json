@@ -1502,7 +1502,7 @@
   "home_id": "5",
   "away_id": "10",
   "home_score": 0,
-  "away_score": 0,
+  "away_score": 1,
   "home_scorers": null,
   "away_scorers": null,
   "group": "R16",
@@ -1510,7 +1510,7 @@
   "date": "07/04/2026 12:00",
   "stadium_id": "5",
   "finished": false,
-  "status": "39'",
+  "status": "75'",
   "type": "r16"
  },
  {
