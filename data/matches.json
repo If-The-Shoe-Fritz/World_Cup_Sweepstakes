@@ -1519,7 +1519,7 @@
   "id": 91,
   "home_id": "9",
   "away_id": "36",
-  "home_score": 0,
+  "home_score": 1,
   "away_score": 2,
   "home_scorers": null,
   "away_scorers": null,
@@ -1527,9 +1527,10 @@
   "matchday": "5",
   "date": "07/05/2026 16:00",
   "stadium_id": "11",
-  "finished": false,
-  "status": "90'+7'",
-  "type": "r16"
+  "finished": true,
+  "status": "finished",
+  "type": "r16",
+  "winner_id": "36"
  },
  {
   "id": 92,
