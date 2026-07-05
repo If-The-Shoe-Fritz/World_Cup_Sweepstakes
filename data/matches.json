@@ -1520,7 +1520,7 @@
   "home_id": "9",
   "away_id": "36",
   "home_score": 0,
-  "away_score": 0,
+  "away_score": 2,
   "home_scorers": null,
   "away_scorers": null,
   "group": "R16",
@@ -1528,7 +1528,7 @@
   "date": "07/05/2026 16:00",
   "stadium_id": "11",
   "finished": false,
-  "status": "HT",
+  "status": "90'+7'",
   "type": "r16"
  },
  {
