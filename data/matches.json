@@ -1631,9 +1631,10 @@
   "matchday": "6",
   "date": "07/09/2026 16:00",
   "stadium_id": "9",
-  "finished": false,
-  "status": "77'",
-  "type": "qf"
+  "finished": true,
+  "status": "finished",
+  "type": "qf",
+  "winner_id": "33"
  },
  {
   "id": 98,
