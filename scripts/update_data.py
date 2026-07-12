@@ -30,8 +30,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(ROOT, "data")
 
 # ESPN's undocumented-but-stable public scoreboard for the World Cup.
-# A single date-range request returns the whole tournament.
-ESPN = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates={start}-{end}"
+# A single date-range request returns the whole tournament. `limit` is essential:
+# the endpoint defaults to 100 events, and the 2026 schedule has 104 fixtures, so
+# without it the last games (both semis, the 3rd-place play-off and the final) get
+# truncated off the response and never populate.
+ESPN = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates={start}-{end}&limit=1000"
 TOURNAMENT_START = datetime(2026, 6, 11, tzinfo=timezone.utc)
 TOURNAMENT_END = datetime(2026, 7, 20, tzinfo=timezone.utc)
 # ESPN returns an EMPTY payload to unfamiliar User-Agents, so look like a browser.
