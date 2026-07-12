@@ -1658,16 +1658,17 @@
   "home_id": "36",
   "away_id": "45",
   "home_score": 1,
-  "away_score": 1,
+  "away_score": 2,
   "home_scorers": null,
   "away_scorers": null,
   "group": "QF",
   "matchday": "6",
   "date": "07/11/2026 17:00",
   "stadium_id": "8",
-  "finished": false,
-  "status": "ET",
-  "type": "qf"
+  "finished": true,
+  "status": "finished",
+  "type": "qf",
+  "winner_id": "45"
  },
  {
   "id": 100,
