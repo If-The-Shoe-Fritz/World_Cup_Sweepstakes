@@ -1692,16 +1692,17 @@
   "home_id": "33",
   "away_id": "29",
   "home_score": 0,
-  "away_score": 1,
+  "away_score": 2,
   "home_scorers": null,
   "away_scorers": null,
   "group": "SF",
   "matchday": "7",
   "date": "07/14/2026 14:00",
   "stadium_id": "4",
-  "finished": false,
-  "status": "HT",
-  "type": "sf"
+  "finished": true,
+  "status": "finished",
+  "type": "sf",
+  "winner_id": "29"
  },
  {
   "id": 102,
