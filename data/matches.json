@@ -1708,8 +1708,8 @@
   "id": 102,
   "home_id": "45",
   "away_id": "37",
-  "home_score": 0,
-  "away_score": 0,
+  "home_score": 1,
+  "away_score": 1,
   "home_scorers": null,
   "away_scorers": null,
   "group": "SF",
@@ -1717,7 +1717,7 @@
   "date": "07/15/2026 15:00",
   "stadium_id": "7",
   "finished": false,
-  "status": "HT",
+  "status": "87'",
   "type": "sf"
  },
  {
