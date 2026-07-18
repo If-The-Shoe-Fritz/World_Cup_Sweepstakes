@@ -1726,7 +1726,7 @@
   "home_id": "33",
   "away_id": "45",
   "home_score": 0,
-  "away_score": 1,
+  "away_score": 4,
   "home_scorers": null,
   "away_scorers": null,
   "group": "3RD",
@@ -1734,7 +1734,7 @@
   "date": "07/18/2026 17:00",
   "stadium_id": "8",
   "finished": false,
-  "status": "3'",
+  "status": "HT",
   "type": "third"
  },
  {
