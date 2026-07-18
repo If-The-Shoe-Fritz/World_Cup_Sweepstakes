@@ -1725,17 +1725,18 @@
   "id": 103,
   "home_id": "33",
   "away_id": "45",
-  "home_score": 0,
-  "away_score": 4,
+  "home_score": 4,
+  "away_score": 6,
   "home_scorers": null,
   "away_scorers": null,
   "group": "3RD",
   "matchday": "8",
   "date": "07/18/2026 17:00",
   "stadium_id": "8",
-  "finished": false,
-  "status": "HT",
-  "type": "third"
+  "finished": true,
+  "status": "finished",
+  "type": "third",
+  "winner_id": "45"
  },
  {
   "id": 104,
